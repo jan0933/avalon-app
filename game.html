@@ -90,7 +90,7 @@
     /* 語音按鈕基礎樣式 */
     .btn-voice-action {
       background: #282828;
-      border: 1px solid #444;
+      border: 2px solid #444;
       color: #fff;
       padding: 11px 12px;
       border-radius: 8px;
@@ -101,11 +101,20 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: background 0.15s, transform 0.1s;
+      transition: all 0.2s ease;
     }
     .btn-voice-action:active {
       background: #383838;
       transform: scale(0.98);
+    }
+
+    /* 語音播放時：按鍵外框變色與發光特效 */
+    .btn-voice-action.speaking {
+      border-color: var(--accent) !important;
+      background: #382d1d !important;
+      color: #ffdd80 !important;
+      box-shadow: 0 0 14px rgba(245, 166, 35, 0.6) !important;
+      transform: scale(1.02);
     }
 
     /* 任務板成功/失敗按鈕 */
@@ -220,7 +229,7 @@
 <div class="container">
   <h2>🛡️ 白天任務進行中</h2>
 
-  <!-- 1. 任務出征板（含任務進度、出牌語音、成功/失敗結算） -->
+  <!-- 1. 任務出征板 -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>🗺️ 任務出征板 (<span id="player-num-tag">5</span> 人局)</b>
@@ -234,8 +243,8 @@
       當前進行：第 1 任務，需派 2 人出征
     </div>
 
-    <!-- 整合：隊員閉眼提交任務卡語音按鈕 -->
-    <button class="btn-voice-action" onclick="speakText('組隊通過！任務隊員請閉上雙眼，私下提交任務卡！')">
+    <!-- 隊員提交任務卡語音按鈕（帶變色效果） -->
+    <button class="btn-voice-action" onclick="speakWithHighlight(this, '組隊通過！任務隊員請閉上雙眼，私下提交任務卡！')">
       🤫 隊員閉眼提交任務卡
     </button>
 
@@ -250,19 +259,19 @@
     </div>
   </div>
 
-  <!-- 2. 隊長組隊否決計數器（含隊長提名與表決倒數語音） -->
+  <!-- 2. 隊長組隊否決計數器 -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>⚠️ 隊長組隊提名與否決計數</b>
       <span style="font-size:0.8rem; color:#ff5252;">連續 5 次否決壞人勝</span>
     </div>
 
-    <!-- 整合：隊長組織提名與全體投票語音 -->
+    <!-- 隊長提名與投票語音（帶變色效果） -->
     <div style="display:flex; gap:8px;">
-      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakText('請當前隊長開始發言，並提名出征隊員！')">
+      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '請當前隊長開始發言，並提名出征隊員！')">
         🗣️ 請隊長提名隊伍
       </button>
-      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakText('全體玩家請準備，3、2、1，請投票！')">
+      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '全體玩家請準備，3、2、1，請投票！')">
         🗳️ 表決倒數 321
       </button>
     </div>
@@ -285,7 +294,7 @@
   <div class="card lake-card" id="lady-container" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b style="color:var(--lake-blue);">🌊 湖中女神驗人紀錄</b>
-      <button id="btn-lady-voice" style="background:#2a2a2a; border:1px solid #444; color:#fff; padding:6px 10px; border-radius:6px; font-size:0.8rem; cursor:pointer;">語音宣告驗人</button>
+      <button class="btn-voice-action" style="padding:6px 10px; font-size:0.8rem;" onclick="speakLadyVoice(this)">語音宣告驗人</button>
     </div>
     <div style="font-size:0.8rem; color:var(--subtext); line-height:1.4;">
       起始持有人：第 1 任隊長右側玩家。<br>
@@ -321,7 +330,11 @@
 <script>
   const urlParams = new URLSearchParams(window.location.search);
   const players = parseInt(urlParams.get('players')) || 5;
+  const currentLevel = parseInt(urlParams.get('level')) || 1;
   const useLady = parseInt(urlParams.get('lady')) === 1;
+
+  // 判斷當前局是否有梅林（Lv.1 無特殊牌沒有梅林，Lv.2~Lv.6 均有梅林與刺客）
+  const hasMerlin = (currentLevel >= 2);
 
   document.getElementById('player-num-tag').textContent = players;
   if (useLady) {
@@ -385,9 +398,9 @@
     resetReject();
 
     if (result === 'success') {
-      speakText(`第 ${curIdx + 1} 次任務成功！正義陣營獲得一分！`);
+      speakRaw(`第 ${curIdx + 1} 次任務成功！正義陣營獲得一分！`);
     } else {
-      speakText(`第 ${curIdx + 1} 次任務失敗！邪惡陣營獲得一分！`);
+      speakRaw(`第 ${curIdx + 1} 次任務失敗！邪惡陣營獲得一分！`);
     }
 
     updateBoardState();
@@ -416,8 +429,13 @@
     const btnGood = document.getElementById('btn-quest-good');
     const btnEvil = document.getElementById('btn-quest-evil');
 
+    // 正義陣營滿 3 勝：依據是否有梅林給予不同結算說明
     if (winGood >= 3) {
-      tip.textContent = "🏆 正義陣營完成 3 次任務！進入刺客刺殺梅林階段！";
+      if (hasMerlin) {
+        tip.textContent = "🏆 正義陣營完成 3 次任務！進入刺客刺殺梅林階段！";
+      } else {
+        tip.textContent = "🏆 正義陣營完成 3 次任務！好人直接獲得最終勝利！";
+      }
       tip.style.color = "#64b5f6";
       document.querySelectorAll('.quest-node').forEach(n => n.classList.remove('active-quest'));
       btnGood.disabled = true;
@@ -425,6 +443,7 @@
       return;
     } 
     
+    // 邪惡陣營滿 3 敗
     if (winEvil >= 3) {
       tip.textContent = "💀 邪惡陣營完成 3 次任務失敗！邪惡陣營獲勝！";
       tip.style.color = "#ef9a9a";
@@ -470,7 +489,7 @@
     });
 
     if (currentReject === 5) {
-      speakText("連續第五次組隊被否決，邪惡陣營直接獲得勝利！");
+      speakRaw("連續第五次組隊被否決，邪惡陣營直接獲得勝利！");
       alert("連續 5 次組隊表決失敗！邪惡陣營直接獲勝！");
     }
   }
@@ -499,14 +518,37 @@
   });
 
   // 湖中女神語音
-  const btnLady = document.getElementById('btn-lady-voice');
-  if (btnLady) {
-    btnLady.addEventListener('click', () => {
-      speakText("任務結算完畢。請湖中女神持有者，選擇一名玩家進行陣營查驗。被查驗者請私下告知真實陣營，並接過女神標記！");
-    });
+  function speakLadyVoice(btn) {
+    speakWithHighlight(btn, "任務結算完畢。請湖中女神持有者，選擇一名玩家進行陣營查驗。被查驗者請私下告知真實陣營，並接過女神標記！");
   }
 
-  function speakText(msg) {
+  // 語音播放與按鍵外框變色發光連動
+  function speakWithHighlight(buttonEl, msg) {
+    try {
+      window.speechSynthesis.cancel();
+      document.querySelectorAll('.btn-voice-action').forEach(b => b.classList.remove('speaking'));
+
+      if (buttonEl) buttonEl.classList.add('speaking');
+
+      const utterance = new SpeechSynthesisUtterance(msg);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.9;
+
+      utterance.onend = () => {
+        if (buttonEl) buttonEl.classList.remove('speaking');
+      };
+      utterance.onerror = () => {
+        if (buttonEl) buttonEl.classList.remove('speaking');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      if (buttonEl) buttonEl.classList.remove('speaking');
+      console.warn("語音播放受阻:", e);
+    }
+  }
+
+  function speakRaw(msg) {
     try {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(msg);
@@ -514,7 +556,7 @@
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
     } catch (e) {
-      console.warn("語音播放受阻:", e);
+      console.warn(e);
     }
   }
 
