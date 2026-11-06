@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>阿瓦隆語音助理</title>
+  <title>任務戰情室 - 阿瓦隆語音助理</title>
   <style>
     :root {
       --bg-color: #121212;
@@ -12,6 +12,9 @@
       --text: #ffffff;
       --subtext: #aaaaaa;
       --accent: #f5a623;
+      --good-blue: #1976d2;
+      --evil-red: #d32f2f;
+      --lake-blue: #0288d1;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -19,10 +22,9 @@
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       justify-content: center;
-      align-items: center;
       min-height: 100vh;
     }
     .container {
@@ -31,35 +33,538 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      text-align: center;
     }
-    h1 { font-size: 2rem; color: var(--accent); margin-bottom: 5px; }
-    p { color: var(--subtext); margin-top: 0; }
-    .btn {
-      display: block;
+    h2 { text-align: center; margin: 4px 0 10px; font-size: 1.4rem; color: var(--accent); }
+    .card {
       background: var(--card-bg);
-      color: var(--text);
-      text-decoration: none;
-      border: 1px solid #333;
-      padding: 18px;
-      font-size: 1.2rem;
+      padding: 16px;
       border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* 1. 任務出征板進度條 */
+    .quest-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .quest-node {
+      background: #2a2a2a;
+      border: 2px solid #444;
+      border-radius: 10px;
+      padding: 10px 4px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.25s ease;
+      will-change: transform;
+    }
+    .quest-node.active-quest {
+      border-color: var(--accent);
+      background: #332715;
+      box-shadow: 0 0 12px rgba(245, 166, 35, 0.4);
+    }
+    .quest-node.success { background: var(--good-blue) !important; border-color: #64b5f6 !important; }
+    .quest-node.fail { background: var(--evil-red) !important; border-color: #ef9a9a !important; }
+    .quest-title { font-size: 0.75rem; color: var(--subtext); }
+    .quest-count { font-size: 1.25rem; font-weight: bold; }
+    .quest-sub { font-size: 0.65rem; color: #ffab91; }
+
+    /* 平滑彈跳縮放動畫 */
+    @keyframes popBounce {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.18); }
+      65% { transform: scale(0.94); }
+      85% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .pop-bounce {
+      animation: popBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 語音按鈕基礎樣式 */
+    .btn-voice-action {
+      background: #282828;
+      border: 2px solid #444;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
       font-weight: bold;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      width: 100%;
     }
-    .btn-primary { background: var(--primary); border: none; }
-    .btn-secondary { background: #2a2a2a; border: none; }
+    .btn-voice-action:active {
+      background: #383838;
+      transform: scale(0.98);
+    }
+
+    /* 語音播放時：按鍵外框變色與發光特效 */
+    .btn-voice-action.speaking {
+      border-color: var(--accent) !important;
+      background: #382d1d !important;
+      color: #ffdd80 !important;
+      box-shadow: 0 0 14px rgba(245, 166, 35, 0.6) !important;
+      transform: scale(1.02);
+    }
+
+    /* 任務成功/失敗結算按鈕 */
+    .quest-resolve-btns {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-resolve {
+      flex: 1;
+      padding: 14px 8px;
+      border-radius: 10px;
+      font-size: 0.98rem;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .btn-resolve:active { transform: scale(0.97); }
+    .btn-resolve-good { background: var(--good-blue); }
+    .btn-resolve-evil { background: var(--evil-red); }
+    .btn-resolve:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 連續否決計數器 */
+    .reject-tracker {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .reject-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      border: 2px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .reject-dot.active {
+      background: var(--primary);
+      border-color: #ff7961;
+      box-shadow: 0 0 10px rgba(229, 9, 20, 0.6);
+      transform: scale(1.08);
+    }
+
+    /* 湖中女神區域 */
+    .lake-card { border-left: 4px solid var(--lake-blue); }
+    .lady-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+    }
+    .lady-input {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 6px;
+      width: 75px;
+      text-align: center;
+    }
+
+    /* 底部操作列 */
+    .btn-bar { display: flex; gap: 10px; margin-top: 8px; }
+    .btn {
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      border: none;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      transition: transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-restart {
+      background: #c62828 !important;
+      color: #ffffff !important;
+      border: 1px solid #e53935 !important;
+    }
+    .btn-rules {
+      background: #333333 !important;
+      color: #ffffff !important;
+      border: 1px solid #4f4f4f !important;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>⚔️ 阿瓦隆語音助理</h1>
-  <p>個人隨身主持小工具</p>
-  <div style="height: 40px;"></div>
-  <a href="play.html" class="btn btn-primary">開始遊戲</a>
-  <a href="rules.html" class="btn btn-secondary">規則說明</a>
+  <h2>🛡️ 白天任務進行中</h2>
+
+  <!-- 步驟 1：任務出征板（純粹查看各輪人數進度與目標） -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <b>🗺️ 任務出征板 (<span id="player-num-tag">5</span> 人局)</b>
+      <span style="font-size:0.75rem; color:var(--subtext);">點擊節點可直接修正</span>
+    </div>
+
+    <!-- 5個任務圓圈進度 -->
+    <div class="quest-grid" id="quest-grid"></div>
+
+    <div id="quest-detail-tip" style="font-size:0.95rem; color:var(--accent); text-align:center; min-height:1.4em; font-weight:bold;">
+      當前進行：第 1 任務，需派 2 人出征
+    </div>
+  </div>
+
+  <!-- 步驟 2：隊長組隊提名與投票否決計數器 -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <b>⚠️ 隊長組隊提名與否決計數</b>
+      <span style="font-size:0.8rem; color:#ff5252;">連續 5 次否決壞人勝</span>
+    </div>
+
+    <!-- 提名與投票語音 -->
+    <div style="display:flex; gap:8px;">
+      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '請當前隊長開始發言，並提名出征隊員！')">
+        🗣️ 請隊長提名隊伍
+      </button>
+      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '全體玩家請準備，3、2、1，請投票！')">
+        🗳️ 表決倒數 321
+      </button>
+    </div>
+
+    <div class="reject-tracker">
+      <div class="reject-dot" data-val="1">1</div>
+      <div class="reject-dot" data-val="2">2</div>
+      <div class="reject-dot" data-val="3">3</div>
+      <div class="reject-dot" data-val="4">4</div>
+      <div class="reject-dot" data-val="5" style="border-color:#ff5252; color:#ff5252;">5</div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:2px;">
+      <button id="btn-reject-add" style="flex:1; background:#2a2a2a; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">組隊被否決 (+1)</button>
+      <button id="btn-reject-reset" style="flex:1; background:#2a2a2a; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">組隊通過 (歸零)</button>
+    </div>
+  </div>
+
+  <!-- 步驟 3：獨立欄位 - 執行出征與任務結算（組隊通過後執行） -->
+  <div class="card">
+    <b>⚔️ 執行出征與任務結算</b>
+    
+    <!-- 隊員閉眼出牌語音 -->
+    <button class="btn-voice-action" onclick="speakWithHighlight(this, '組隊通過！任務隊員請閉上雙眼，私下提交任務卡！')">
+      🤫 隊員閉眼提交任務卡
+    </button>
+
+    <!-- 成功 / 失敗 判定按鈕 -->
+    <div class="quest-resolve-btns">
+      <button id="btn-quest-good" class="btn-resolve btn-resolve-good">
+        🏆 當前任務成功
+      </button>
+      <button id="btn-quest-evil" class="btn-resolve btn-resolve-evil">
+        💀 當前任務失敗
+      </button>
+    </div>
+  </div>
+
+  <!-- 步驟 4：湖中女神紀錄板（若有啟用才顯示） -->
+  <div class="card lake-card" id="lady-container" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <b style="color:var(--lake-blue);">🌊 湖中女神驗人紀錄</b>
+      <button class="btn-voice-action" style="padding:6px 10px; font-size:0.8rem; width:auto;" onclick="speakLadyVoice(this)">語音宣告驗人</button>
+    </div>
+    <div style="font-size:0.8rem; color:var(--subtext); line-height:1.4;">
+      起始持有人：第 1 任隊長右側玩家。<br>
+      被查驗者僅私下出示陣營，並成為下一任女神持有者。
+    </div>
+    
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div class="lady-step">
+        <span style="width:75px;">R2 結束：</span>
+        <input type="text" placeholder="持卡者" class="lady-input"> 查驗 
+        <input type="text" placeholder="被查驗" class="lady-input">
+      </div>
+      <div class="lady-step">
+        <span style="width:75px;">R3 結束：</span>
+        <input type="text" placeholder="持卡者" class="lady-input"> 查驗 
+        <input type="text" placeholder="被查驗" class="lady-input">
+      </div>
+      <div class="lady-step">
+        <span style="width:75px;">R4 結束：</span>
+        <input type="text" placeholder="持卡者" class="lady-input"> 查驗 
+        <input type="text" placeholder="被查驗" class="lady-input">
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部列：重開新局與查看規則 -->
+  <div class="btn-bar">
+    <a href="play.html" class="btn btn-restart">🔄 重開新局</a>
+    <a href="rules.html" class="btn btn-rules">📖 查看規則</a>
+  </div>
 </div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const players = parseInt(urlParams.get('players')) || 5;
+  const currentLevel = parseInt(urlParams.get('level')) || 1;
+  const useLady = parseInt(urlParams.get('lady')) === 1;
+
+  const hasMerlin = (currentLevel >= 2);
+
+  document.getElementById('player-num-tag').textContent = players;
+  if (useLady) {
+    document.getElementById('lady-container').style.display = 'flex';
+  }
+
+  const questConfigs = {
+    5:  [2, 3, 2, 3, 3],
+    6:  [2, 3, 4, 3, 4],
+    7:  [2, 3, 3, 4, 4],
+    8:  [3, 4, 4, 5, 5],
+    9:  [3, 4, 4, 5, 5],
+    10: [3, 4, 4, 5, 5]
+  };
+
+  const currentQuests = questConfigs[players] || questConfigs[5];
+  const questStatus = [null, null, null, null, null];
+
+  const grid = document.getElementById('quest-grid');
+  grid.innerHTML = '';
+  currentQuests.forEach((count, i) => {
+    const isDoubleFail = (players >= 7 && i === 3);
+    const node = document.createElement('div');
+    node.className = `quest-node ${i === 0 ? 'active-quest' : ''}`;
+    node.id = `q-${i}`;
+    node.innerHTML = `
+      <div class="quest-title">R${i + 1}</div>
+      <div class="quest-count">${count}人</div>
+      ${isDoubleFail ? '<div class="quest-sub">需2失敗</div>' : ''}
+    `;
+    node.addEventListener('click', () => toggleQuestManual(i));
+    grid.appendChild(node);
+  });
+
+  function getCurrentQuestIndex() {
+    return questStatus.findIndex(s => s === null);
+  }
+
+  function triggerBounce(node) {
+    if (!node) return;
+    node.classList.remove('pop-bounce');
+    void node.offsetWidth;
+    node.classList.add('pop-bounce');
+  }
+
+  function resolveCurrentQuest(result) {
+    const curIdx = getCurrentQuestIndex();
+    if (curIdx === -1) {
+      alert("所有 5 次任務皆已完成！若要修改請直接點擊上方任務圓圈。");
+      return;
+    }
+
+    questStatus[curIdx] = result;
+    const node = document.getElementById(`q-${curIdx}`);
+    if (node) {
+      node.classList.remove('active-quest');
+      node.classList.add(result);
+      triggerBounce(node);
+    }
+
+    resetReject();
+
+    if (result === 'success') {
+      speakRaw(`第 ${curIdx + 1} 次任務成功！正義陣營獲得一分！`);
+    } else {
+      speakRaw(`第 ${curIdx + 1} 次任務失敗！邪惡陣營獲得一分！`);
+    }
+
+    updateBoardState();
+  }
+
+  function toggleQuestManual(index) {
+    const node = document.getElementById(`q-${index}`);
+    if (questStatus[index] === null) {
+      questStatus[index] = 'success';
+      node.className = 'quest-node success';
+    } else if (questStatus[index] === 'success') {
+      questStatus[index] = 'fail';
+      node.className = 'quest-node fail';
+    } else {
+      questStatus[index] = null;
+      node.className = 'quest-node';
+    }
+    triggerBounce(node);
+    updateBoardState();
+  }
+
+  function updateBoardState() {
+    const winGood = questStatus.filter(s => s === 'success').length;
+    const winEvil = questStatus.filter(s => s === 'fail').length;
+    const tip = document.getElementById('quest-detail-tip');
+    const btnGood = document.getElementById('btn-quest-good');
+    const btnEvil = document.getElementById('btn-quest-evil');
+
+    if (winGood >= 3) {
+      if (hasMerlin) {
+        tip.textContent = "🏆 正義陣營完成 3 次任務！進入刺客刺殺梅林階段！";
+      } else {
+        tip.textContent = "🏆 正義陣營完成 3 次任務！好人直接獲得最終勝利！";
+      }
+      tip.style.color = "#64b5f6";
+      document.querySelectorAll('.quest-node').forEach(n => n.classList.remove('active-quest'));
+      btnGood.disabled = true;
+      btnEvil.disabled = true;
+      return;
+    } 
+    
+    if (winEvil >= 3) {
+      tip.textContent = "💀 邪惡陣營完成 3 次任務失敗！邪惡陣營獲勝！";
+      tip.style.color = "#ef9a9a";
+      document.querySelectorAll('.quest-node').forEach(n => n.classList.remove('active-quest'));
+      btnGood.disabled = true;
+      btnEvil.disabled = true;
+      return;
+    }
+
+    btnGood.disabled = false;
+    btnEvil.disabled = false;
+
+    const nextIdx = getCurrentQuestIndex();
+    if (nextIdx !== -1) {
+      document.querySelectorAll('.quest-node').forEach((n, idx) => {
+        if (questStatus[idx] === null) {
+          n.classList.toggle('active-quest', idx === nextIdx);
+        } else {
+          n.classList.remove('active-quest');
+        }
+      });
+      const count = currentQuests[nextIdx];
+      const double = (players >= 7 && nextIdx === 3) ? "（需 2 張失敗牌才算失敗）" : "";
+      tip.textContent = `當前進行：第 ${nextIdx + 1} 任務，需派 ${count} 人出征 ${double}`;
+      tip.style.color = "var(--accent)";
+    }
+  }
+
+  document.getElementById('btn-quest-good').addEventListener('click', () => {
+    resolveCurrentQuest('success');
+  });
+
+  document.getElementById('btn-quest-evil').addEventListener('click', () => {
+    resolveCurrentQuest('fail');
+  });
+
+  // 連續否決計數邏輯
+  let currentReject = 0;
+  function updateRejectUI() {
+    document.querySelectorAll('.reject-dot').forEach(dot => {
+      const val = parseInt(dot.getAttribute('data-val'));
+      dot.classList.toggle('active', val <= currentReject);
+    });
+
+    if (currentReject === 5) {
+      speakRaw("連續第五次組隊被否決，邪惡陣營直接獲得勝利！");
+      alert("連續 5 次組隊表決失敗！邪惡陣營直接獲勝！");
+    }
+  }
+
+  function addReject() {
+    if (currentReject < 5) {
+      currentReject++;
+      updateRejectUI();
+    }
+  }
+
+  function resetReject() {
+    currentReject = 0;
+    updateRejectUI();
+  }
+
+  document.getElementById('btn-reject-add').addEventListener('click', addReject);
+  document.getElementById('btn-reject-reset').addEventListener('click', resetReject);
+
+  document.querySelectorAll('.reject-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const val = parseInt(dot.getAttribute('data-val'));
+      currentReject = (currentReject === val) ? val - 1 : val;
+      updateRejectUI();
+    });
+  });
+
+  // 湖中女神語音
+  function speakLadyVoice(btn) {
+    speakWithHighlight(btn, "任務結算完畢。請湖中女神持有者，選擇一名玩家進行陣營查驗。被查驗者請私下告知真實陣營，並接過女神標記！");
+  }
+
+  // 語音播放與按鍵外框變色發光連動
+  function speakWithHighlight(buttonEl, msg) {
+    try {
+      window.speechSynthesis.cancel();
+      document.querySelectorAll('.btn-voice-action').forEach(b => b.classList.remove('speaking'));
+
+      if (buttonEl) buttonEl.classList.add('speaking');
+
+      const utterance = new SpeechSynthesisUtterance(msg);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.9;
+
+      utterance.onend = () => {
+        if (buttonEl) buttonEl.classList.remove('speaking');
+      };
+      utterance.onerror = () => {
+        if (buttonEl) buttonEl.classList.remove('speaking');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      if (buttonEl) buttonEl.classList.remove('speaking');
+      console.warn("語音播放受阻:", e);
+    }
+  }
+
+  function speakRaw(msg) {
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(msg);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  updateBoardState();
+</script>
 
 </body>
 </html>
