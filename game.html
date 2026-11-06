@@ -43,6 +43,7 @@
       flex-direction: column;
       gap: 12px;
     }
+
     /* 5個任務圓圈進度條 */
     .quest-grid {
       display: grid;
@@ -60,7 +61,8 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      transition: all 0.2s;
+      transition: all 0.25s ease;
+      will-change: transform;
     }
     .quest-node.active-quest {
       border-color: var(--accent);
@@ -73,7 +75,29 @@
     .quest-count { font-size: 1.25rem; font-weight: bold; }
     .quest-sub { font-size: 0.65rem; color: #ffab91; }
 
-    /* 任務板成功/失敗按鈕（預設亮起，清楚可點） */
+    /* 平滑彈跳縮放動畫 */
+    @keyframes popBounce {
+      0% {
+        transform: scale(1);
+      }
+      35% {
+        transform: scale(1.18);
+      }
+      65% {
+        transform: scale(0.94);
+      }
+      85% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    .pop-bounce {
+      animation: popBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 任務板成功/失敗按鈕 */
     .quest-resolve-btns {
       display: flex;
       gap: 10px;
@@ -92,7 +116,6 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      opacity: 1;
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
       transition: transform 0.1s, opacity 0.2s;
     }
@@ -142,14 +165,16 @@
       font-weight: bold;
       font-size: 0.95rem;
       cursor: pointer;
+      transition: all 0.2s;
     }
     .reject-dot.active {
       background: var(--primary);
       border-color: #ff7961;
       box-shadow: 0 0 10px rgba(229, 9, 20, 0.6);
+      transform: scale(1.08);
     }
 
-    /* 由上而下一鍵廣播清單 */
+    /* 一鍵廣播清單 */
     .broadcast-list {
       display: flex;
       flex-direction: column;
@@ -219,7 +244,7 @@
     </div>
   </div>
 
-  <!-- 2. 湖中女神紀錄板（若有啟用才顯示） -->
+  <!-- 2. 湖中女神紀錄板 -->
   <div class="card lake-card" id="lady-container" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b style="color:var(--lake-blue);">🌊 湖中女神驗人紀錄</b>
@@ -301,7 +326,6 @@
 </div>
 
 <script>
-  // 1. 取得人數與湖中女神設定
   const urlParams = new URLSearchParams(window.location.search);
   const players = parseInt(urlParams.get('players')) || 5;
   const useLady = parseInt(urlParams.get('lady')) === 1;
@@ -311,7 +335,6 @@
     document.getElementById('lady-container').style.display = 'flex';
   }
 
-  // 任務人數配置表
   const questConfigs = {
     5:  [2, 3, 2, 3, 3],
     6:  [2, 3, 4, 3, 4],
@@ -322,9 +345,8 @@
   };
 
   const currentQuests = questConfigs[players] || questConfigs[5];
-  const questStatus = [null, null, null, null, null]; // null, 'success', 'fail'
+  const questStatus = [null, null, null, null, null];
 
-  // 2. 渲染 5 個任務節點
   const grid = document.getElementById('quest-grid');
   grid.innerHTML = '';
   currentQuests.forEach((count, i) => {
@@ -337,17 +359,24 @@
       <div class="quest-count">${count}人</div>
       ${isDoubleFail ? '<div class="quest-sub">需2失敗</div>' : ''}
     `;
-    // 綁定手動點擊修正
     node.addEventListener('click', () => toggleQuestManual(i));
     grid.appendChild(node);
   });
 
-  // 尋找當前尚未完成的任務索引
   function getCurrentQuestIndex() {
     return questStatus.findIndex(s => s === null);
   }
 
-  // 3. 點擊「成功」或「失敗」按鈕的核心處理
+  // 觸發縮放彈跳動畫
+  function triggerBounce(node) {
+    if (!node) return;
+    node.classList.remove('pop-bounce');
+    // 強制重繪以重啟 CSS 動畫
+    void node.offsetWidth;
+    node.classList.add('pop-bounce');
+  }
+
+  // 點擊「成功」或「失敗」按鈕
   function resolveCurrentQuest(result) {
     const curIdx = getCurrentQuestIndex();
     if (curIdx === -1) {
@@ -360,12 +389,11 @@
     if (node) {
       node.classList.remove('active-quest');
       node.classList.add(result);
+      triggerBounce(node); // 執行彈跳動畫
     }
 
-    // 重設組隊否決計數
     resetReject();
 
-    // 播放語音廣播
     if (result === 'success') {
       speakText(`第 ${curIdx + 1} 次任務成功！正義陣營獲得一分！`);
     } else {
@@ -388,10 +416,10 @@
       questStatus[index] = null;
       node.className = 'quest-node';
     }
+    triggerBounce(node);
     updateBoardState();
   }
 
-  // 4. 更新看板狀態與勝負判定
   function updateBoardState() {
     const winGood = questStatus.filter(s => s === 'success').length;
     const winEvil = questStatus.filter(s => s === 'fail').length;
@@ -417,7 +445,6 @@
       return;
     }
 
-    // 遊戲尚未分出勝負：按鈕確保可以使用
     btnGood.disabled = false;
     btnEvil.disabled = false;
 
@@ -437,7 +464,6 @@
     }
   }
 
-  // 5. 綁定「任務成功」與「任務失敗」按鈕監聽器
   document.getElementById('btn-quest-good').addEventListener('click', () => {
     resolveCurrentQuest('success');
   });
@@ -446,7 +472,7 @@
     resolveCurrentQuest('fail');
   });
 
-  // 6. 連續否決計數邏輯
+  // 連續否決計數邏輯
   let currentReject = 0;
   function updateRejectUI() {
     document.querySelectorAll('.reject-dot').forEach(dot => {
@@ -483,7 +509,7 @@
     });
   });
 
-  // 7. 廣播按鈕監聽
+  // 廣播按鈕監聽
   document.querySelectorAll('.btn-broadcast').forEach(btn => {
     btn.addEventListener('click', () => {
       const msg = btn.getAttribute('data-msg');
@@ -491,7 +517,6 @@
     });
   });
 
-  // 湖中女神語音
   const btnLady = document.getElementById('btn-lady-voice');
   if (btnLady) {
     btnLady.addEventListener('click', () => {
@@ -499,7 +524,6 @@
     });
   }
 
-  // 語音播放工具
   function speakText(msg) {
     try {
       window.speechSynthesis.cancel();
@@ -512,7 +536,6 @@
     }
   }
 
-  // 初始化狀態
   updateBoardState();
 </script>
 
