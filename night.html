@@ -14,6 +14,7 @@
       --accent: #f5a623;
       --active-bg: #2d2415;
       --active-border: #f5a623;
+      --success: #2e7d32;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -46,12 +47,11 @@
       border-radius: 6px;
       color: var(--accent);
     }
-    /* 每一句台詞的框框卡片 */
     .script-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 70px;
     }
     .script-card {
       background: var(--card-bg);
@@ -77,7 +77,6 @@
       color: #ccc;
       flex: 1;
     }
-    /* 念到當前句子的變色樣式（發光金黃色） */
     .script-card.active {
       opacity: 1;
       background: var(--active-bg);
@@ -92,7 +91,6 @@
     .script-card.active .script-num {
       color: var(--accent);
     }
-    /* 已念過的句子（淡淡打勾） */
     .script-card.done {
       opacity: 0.3;
       border-color: #222222;
@@ -104,11 +102,16 @@
     .controls {
       display: flex;
       gap: 10px;
-      position: sticky;
-      bottom: 16px;
-      background: rgba(13, 13, 13, 0.9);
-      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 480px;
+      margin: 0 auto;
+      background: rgba(13, 13, 13, 0.95);
+      padding: 12px 16px;
       backdrop-filter: blur(10px);
+      box-sizing: border-box;
     }
     .btn {
       padding: 16px;
@@ -121,14 +124,9 @@
       text-decoration: none;
       flex: 1;
     }
-    .btn-start {
-      background: var(--primary);
-      color: #fff;
-    }
-    .btn-stop {
-      background: #2a2a2a;
-      color: #bbb;
-    }
+    .btn-start { background: var(--primary); color: #fff; }
+    .btn-stop { background: #2a2a2a; color: #bbb; }
+    .btn-next { background: var(--success); color: #fff; }
   </style>
 </head>
 <body>
@@ -140,23 +138,20 @@
     <span id="level-indicator" class="level-tag">載入中...</span>
   </div>
 
-  <!-- 台詞卡片容器 -->
   <div id="script-list" class="script-list"></div>
 
-  <!-- 底部按鈕控制列 -->
   <div class="controls">
     <button id="btn-action" class="btn btn-start">點擊開始主持</button>
-    <a href="play.html" id="btn-back" class="btn btn-stop">返回重設</a>
+    <a href="play.html" id="btn-back" class="btn btn-stop">重設</a>
   </div>
 
 </div>
 
 <script>
-  // 1. 解析網址參數 (?level=X)
   const urlParams = new URLSearchParams(window.location.search);
   const currentLevel = parseInt(urlParams.get('level')) || 1;
+  const players = parseInt(urlParams.get('players')) || 5;
 
-  // 角色等級定義
   const presetDefinitions = {
     1: { name: "Lv.1 無特殊牌", merlin: false, percival: false, morgana: false, mordred: false, oberon: false },
     2: { name: "Lv.2 經典雙雄", merlin: true,  percival: false, morgana: false, mordred: false, oberon: false },
@@ -167,21 +162,16 @@
   };
 
   const config = presetDefinitions[currentLevel] || presetDefinitions[1];
-  document.getElementById('level-indicator').textContent = config.name;
+  document.getElementById('level-indicator').textContent = `${players}人 · ${config.name}`;
 
-  // 2. 根據等級生成台詞清單
   function generateScripts() {
     const list = [];
-
-    // ① 開場閉眼
     list.push({ text: "天黑請閉眼。請所有玩家雙手握拳，置於桌面上。", wait: 3500 });
 
-    // ② 邪惡陣營互認
     let evilText = config.oberon ? "除了奧伯倫以外的邪惡陣營玩家" : "邪惡陣營玩家";
     list.push({ text: `${evilText}，請睜開眼睛，互相確認同伴。`, wait: 5000 });
     list.push({ text: "邪惡陣營玩家，請閉上眼睛。", wait: 3000 });
 
-    // ③ 梅林辨認壞人
     if (config.merlin) {
       let evilThumb = config.mordred ? "除了莫德雷德以外的邪惡陣營玩家" : "邪惡陣營玩家";
       list.push({ text: `${evilThumb}，請豎起大拇指，讓梅林辨認。`, wait: 2500 });
@@ -189,7 +179,6 @@
       list.push({ text: `梅林請閉上眼睛，${evilThumb}請放下大拇指。`, wait: 3000 });
     }
 
-    // ④ 派西維爾辨認梅林與莫甘娜
     if (config.percival) {
       let thumbGroup = config.morgana ? "梅林與莫甘娜" : "梅林";
       list.push({ text: `${thumbGroup}，請豎起大拇指。`, wait: 2500 });
@@ -197,15 +186,11 @@
       list.push({ text: `派西維爾請閉上眼睛，${thumbGroup}請放下大拇指。`, wait: 3000 });
     }
 
-    // ⑤ 天亮
-    list.push({ text: "天亮了，所有人請睜開眼睛！", wait: 1000 });
-
+    list.push({ text: "天亮了，所有人請睜開眼睛！請第一位隊長開始組織任務隊伍。", wait: 1500 });
     return list;
   }
 
   const scripts = generateScripts();
-
-  // 3. 渲染到畫面上生成卡片
   const container = document.getElementById('script-list');
   scripts.forEach((item, index) => {
     const card = document.createElement('div');
@@ -218,9 +203,9 @@
     container.appendChild(card);
   });
 
-  // 4. 語音朗讀與流程控制
   let isRunning = false;
   let isCancelled = false;
+  let isDone = false;
 
   function speak(text) {
     return new Promise((resolve) => {
@@ -251,6 +236,7 @@
   async function runNightProcess() {
     isRunning = true;
     isCancelled = false;
+    isDone = false;
     const actionBtn = document.getElementById('btn-action');
     actionBtn.textContent = "中止主持";
     actionBtn.className = "btn btn-stop";
@@ -258,30 +244,27 @@
     for (let i = 0; i < scripts.length; i++) {
       if (isCancelled) break;
 
-      // 當前卡片變色高亮
       document.querySelectorAll('.script-card').forEach((c, idx) => {
         if (idx < i) {
           c.className = 'script-card done';
         } else if (idx === i) {
           c.className = 'script-card active';
-          // 自動滾動平移至當前卡片視角
           c.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
           c.className = 'script-card';
         }
       });
 
-      // 念出當前句子並等待停頓
       await speak(scripts[i].text);
       await wait(scripts[i].wait);
     }
 
     if (!isCancelled) {
-      // 全數朗讀完成
       document.querySelectorAll('.script-card').forEach(c => c.className = 'script-card done');
-      actionBtn.textContent = "主持完畢（再次點擊重新開始）";
-      actionBtn.className = "btn btn-start";
       isRunning = false;
+      isDone = true;
+      actionBtn.textContent = "進入白天出任務 ➜";
+      actionBtn.className = "btn btn-next";
     }
   }
 
@@ -295,16 +278,17 @@
     actionBtn.className = "btn btn-start";
   }
 
-  // 綁定主持按鈕
   document.getElementById('btn-action').addEventListener('click', () => {
-    if (isRunning) {
+    if (isDone) {
+      // 夜間結束，帶人數前往任務看板
+      window.location.href = `game.html?players=${players}&level=${currentLevel}`;
+    } else if (isRunning) {
       stopProcess();
     } else {
       runNightProcess();
     }
   });
 
-  // 離開頁面時立即中止語音
   window.addEventListener('beforeunload', () => {
     window.speechSynthesis.cancel();
   });
