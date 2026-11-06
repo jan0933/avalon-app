@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>任務戰情室 - 阿瓦隆語音助理</title>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --primary: #e50914;
+      --text: #ffffff;
+      --subtext: #888888;
+      --accent: #f5a623;
+      --good-blue: #1976d2;
+      --evil-red: #d32f2f;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    h2 { text-align: center; margin: 4px 0 10px; font-size: 1.4rem; color: var(--accent); }
+    .card {
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    /* 5個任務圓圈進度條 */
+    .quest-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .quest-node {
+      background: #2a2a2a;
+      border: 2px solid #3d3d3d;
+      border-radius: 10px;
+      padding: 10px 4px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .quest-node.active-quest {
+      border-color: var(--accent);
+      background: #332715;
+    }
+    .quest-node.success {
+      background: var(--good-blue);
+      border-color: #64b5f6;
+    }
+    .quest-node.fail {
+      background: var(--evil-red);
+      border-color: #ef9a9a;
+    }
+    .quest-title { font-size: 0.75rem; color: var(--subtext); }
+    .quest-count { font-size: 1.25rem; font-weight: bold; }
+    .quest-sub { font-size: 0.65rem; color: #ffab91; }
+
+    /* 提名連續否決次數 */
+    .reject-tracker {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+    }
+    .reject-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      border: 2px solid #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .reject-dot.active {
+      background: var(--primary);
+      border-color: #ff7961;
+      box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+    }
+
+    /* 快捷語音廣播區 */
+    .voice-btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .btn-voice {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-weight: 500;
+      text-align: center;
+    }
+    .btn-voice:active {
+      background: #3a3a3a;
+    }
+
+    /* 底部操作 */
+    .btn-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn {
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      flex: 1;
+    }
+    .btn-gray { background: #333; color: #fff; }
+    .btn-reset { background: #222; color: #888; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🛡️ 白天任務進行中</h2>
+
+  <!-- 1. 任務出征進度表 -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <b>🗺️ 任務出征板 (<span id="player-num-tag">5</span> 人局)</b>
+      <span style="font-size:0.75rem; color:var(--subtext);">點擊切換 成功/失敗</span>
+    </div>
+
+    <div class="quest-grid" id="quest-grid"></div>
+
+    <div id="quest-detail-tip" style="font-size:0.85rem; color:var(--accent); text-align:center; min-height:1.2em;">
+      當前進行：第 1 任務，需派 2 人出征
+    </div>
+  </div>
+
+  <!-- 2. 連續投票否決計數器（5票否決機制） -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <b>⚠️ 隊長組隊否決計數器</b>
+      <span id="reject-warning" style="font-size:0.8rem; color:#ff5252;">連續 5 次否決壞人勝</span>
+    </div>
+    <div class="reject-tracker">
+      <div class="reject-dot" data-val="1">1</div>
+      <div class="reject-dot" data-val="2">2</div>
+      <div class="reject-dot" data-val="3">3</div>
+      <div class="reject-dot" data-val="4">4</div>
+      <div class="reject-dot" data-val="5" style="border-color:#ff5252; color:#ff5252;">5</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:4px;">
+      <button class="btn-voice" style="padding:6px; font-size:0.8rem;" onclick="addReject()">投票被否決 (+1)</button>
+      <button class="btn-voice" style="padding:6px; font-size:0.8rem;" onclick="resetReject()">組隊通過 (歸零)</button>
+    </div>
+  </div>
+
+  <!-- 3. 主持人快捷廣播語音（免自己喊） -->
+  <div class="card">
+    <b>📢 主持人一鍵廣播</b>
+    <div class="voice-btn-group">
+      <button class="btn-voice" onclick="speakText('請當前隊長開始發言，並提名出征隊員！')">🗣️ 請隊長提名</button>
+      <button class="btn-voice" onclick="speakText('全體玩家請準備，3、2、1，請投票！')">🗳️ 表決倒數 321</button>
+      <button class="btn-voice" onclick="speakText('任務隊員請閉眼，並私下提交任務卡！')">🤫 隊員私下出牌</button>
+      <button class="btn-voice" onclick="speakText('任務成功！正義陣營獲得一分！')">🎉 廣播任務成功</button>
+      <button class="btn-voice" onclick="speakText('任務失敗！邪惡陣營獲得一分！')">💀 廣播任務失敗</button>
+      <button class="btn-voice" onclick="speakText('好人已滿三勝，進入刺客刺殺梅林環節！')">🗡️ 刺殺梅林環節</button>
+    </div>
+  </div>
+
+  <!-- 底部選單 -->
+  <div class="btn-bar">
+    <a href="play.html" class="btn btn-reset">重開新局</a>
+    <a href="rules.html" class="btn btn-gray">查看規則</a>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const players = parseInt(urlParams.get('players')) || 5;
+  document.getElementById('player-num-tag').textContent = players;
+
+  // 5~10 人局五個任務指派人數與雙失敗規則
+  const questConfigs = {
+    5:  [2, 3, 2, 3, 3],
+    6:  [2, 3, 4, 3, 4],
+    7:  [2, 3, 3, 4, 4],
+    8:  [3, 4, 4, 5, 5],
+    9:  [3, 4, 4, 5, 5],
+    10: [3, 4, 4, 5, 5]
+  };
+
+  const currentQuests = questConfigs[players] || questConfigs[5];
+  // 記錄五個任務的狀態：null (未開始), 'success', 'fail'
+  const questStatus = [null, null, null, null, null];
+
+  // 渲染五個任務節點
+  const grid = document.getElementById('quest-grid');
+  currentQuests.forEach((count, i) => {
+    const isDoubleFail = (players >= 7 && i === 3);
+    const node = document.createElement('div');
+    node.className = `quest-node ${i === 0 ? 'active-quest' : ''}`;
+    node.id = `q-${i}`;
+    node.innerHTML = `
+      <div class="quest-title">R${i + 1}</div>
+      <div class="quest-count">${count}人</div>
+      ${isDoubleFail ? '<div class="quest-sub">需2失敗</div>' : ''}
+    `;
+    node.addEventListener('click', () => toggleQuestStatus(i));
+    grid.appendChild(node);
+  });
+
+  function toggleQuestStatus(index) {
+    const node = document.getElementById(`q-${index}`);
+    if (questStatus[index] === null) {
+      questStatus[index] = 'success';
+      node.className = 'quest-node success';
+    } else if (questStatus[index] === 'success') {
+      questStatus[index] = 'fail';
+      node.className = 'quest-node fail';
+    } else {
+      questStatus[index] = null;
+      node.className = 'quest-node';
+    }
+    checkWinCondition();
+  }
+
+  function checkWinCondition() {
+    const winGood = questStatus.filter(s => s === 'success').length;
+    const winEvil = questStatus.filter(s => s === 'fail').length;
+
+    const tip = document.getElementById('quest-detail-tip');
+    if (winGood >= 3) {
+      tip.textContent = "🏆 好人已完成 3 次任務！進入刺客刺殺階段！";
+      tip.style.color = "#64b5f6";
+    } else if (winEvil >= 3) {
+      tip.textContent = "💀 壞人已累積 3 次任務失敗！邪惡陣營獲勝！";
+      tip.style.color = "#ef9a9a";
+    } else {
+      // 找出第一個尚未完成的任務
+      const nextIndex = questStatus.findIndex(s => s === null);
+      if (nextIndex !== -1) {
+        document.querySelectorAll('.quest-node').forEach((n, idx) => {
+          if (questStatus[idx] === null) {
+            n.classList.toggle('active-quest', idx === nextIndex);
+          }
+        });
+        const count = currentQuests[nextIndex];
+        const double = (players >= 7 && nextIndex === 3) ? "（需2張失敗牌才算失敗）" : "";
+        tip.textContent = `當前進行：第 ${nextIndex + 1} 任務，需派 ${count} 人出征 ${double}`;
+        tip.style.color = "var(--accent)";
+      }
+    }
+  }
+
+  // 投票否決計數邏輯
+  let currentReject = 0;
+
+  function updateRejectUI() {
+    document.querySelectorAll('.reject-dot').forEach(dot => {
+      const val = parseInt(dot.getAttribute('data-val'));
+      dot.classList.toggle('active', val <= currentReject);
+    });
+
+    if (currentReject === 5) {
+      speakText("連續第五次組隊被否決，邪惡陣營直接獲得勝利！");
+      alert("連續 5 次組隊表決失敗！邪惡陣營直接獲勝！");
+    }
+  }
+
+  function addReject() {
+    if (currentReject < 5) {
+      currentReject++;
+      updateRejectUI();
+    }
+  }
+
+  function resetReject() {
+    currentReject = 0;
+    updateRejectUI();
+  }
+
+  document.querySelectorAll('.reject-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const val = parseInt(dot.getAttribute('data-val'));
+      currentReject = (currentReject === val) ? val - 1 : val;
+      updateRejectUI();
+    });
+  });
+
+  // 語音播放
+  function speakText(msg) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(msg);
+    utterance.lang = 'zh-TW';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  }
+</script>
+
+</body>
+</html>
