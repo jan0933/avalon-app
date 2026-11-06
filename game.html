@@ -426,6 +426,17 @@
     node.classList.add('pop-bounce');
   }
 
+  let selectedVoice = null;
+  function initVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    const zh = voices.filter(v => v.lang.includes('zh') || v.lang.includes('TW'));
+    if (zh.length > 0) {
+      selectedVoice = zh.find(v => v.name.includes('Enhanced') || v.name.includes('增強') || v.name.includes('Premium')) || zh[0];
+    }
+  }
+  window.speechSynthesis.onvoiceschanged = initVoice;
+  initVoice();
+
   function showResultModal(type) {
     const modal = document.getElementById('result-modal');
     const icon = document.getElementById('modal-icon');
@@ -615,6 +626,9 @@
       const utterance = new SpeechSynthesisUtterance(msg);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.9;
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
 
       utterance.onend = () => {
         if (buttonEl) buttonEl.classList.remove('speaking');
@@ -636,6 +650,9 @@
       const utterance = new SpeechSynthesisUtterance(msg);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.9;
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
       window.speechSynthesis.speak(utterance);
     } catch (e) {
       console.warn(e);
