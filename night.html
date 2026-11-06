@@ -212,6 +212,19 @@
   let isRunning = false;
   let isCancelled = false;
   let isDone = false;
+  let selectedVoice = null;
+
+  // 動態抓取手機系統下載的語音庫
+  function initVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    const zh = voices.filter(v => v.lang.includes('zh') || v.lang.includes('TW'));
+    if (zh.length > 0) {
+      // 優先挑選手機裡下載的高品質 (Enhanced / Premium) 語音
+      selectedVoice = zh.find(v => v.name.includes('Enhanced') || v.name.includes('增強') || v.name.includes('Premium')) || zh[0];
+    }
+  }
+  window.speechSynthesis.onvoiceschanged = initVoice;
+  initVoice();
 
   function speak(text) {
     return new Promise((resolve) => {
@@ -220,6 +233,10 @@
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.88;
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+
       utterance.onend = () => resolve();
       utterance.onerror = () => resolve();
       window.speechSynthesis.speak(utterance);
