@@ -77,21 +77,11 @@
 
     /* 平滑彈跳縮放動畫 */
     @keyframes popBounce {
-      0% {
-        transform: scale(1);
-      }
-      35% {
-        transform: scale(1.18);
-      }
-      65% {
-        transform: scale(0.94);
-      }
-      85% {
-        transform: scale(1.05);
-      }
-      100% {
-        transform: scale(1);
-      }
+      0% { transform: scale(1); }
+      35% { transform: scale(1.18); }
+      65% { transform: scale(0.94); }
+      85% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
     .pop-bounce {
       animation: popBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -198,20 +188,42 @@
     .btn-broadcast:active { background: #383838; }
     .broadcast-arrow { color: var(--accent); font-size: 0.85rem; }
 
+    /* 底部操作列 */
     .btn-bar { display: flex; gap: 10px; margin-top: 8px; }
     .btn {
-      padding: 14px;
+      padding: 15px;
       border-radius: 10px;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: bold;
       border: none;
       text-align: center;
       text-decoration: none;
       cursor: pointer;
       flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      transition: transform 0.1s, background 0.2s;
     }
-    .btn-gray { background: #333; color: #fff; }
-    .btn-reset { background: #222; color: #bbb; border: 1px solid #444; }
+    .btn:active { transform: scale(0.98); }
+    
+    /* 重開新局：鮮明清晰、絕不反白 */
+    .btn-restart {
+      background: #c62828 !important;
+      color: #ffffff !important;
+      border: 1px solid #e53935 !important;
+    }
+    .btn-restart:hover {
+      background: #b71c1c !important;
+    }
+
+    /* 查看規則：標準穩重深灰色 */
+    .btn-rules {
+      background: #333333 !important;
+      color: #ffffff !important;
+      border: 1px solid #4f4f4f !important;
+    }
   </style>
 </head>
 <body>
@@ -319,9 +331,10 @@
     </div>
   </div>
 
+  <!-- 底部列：重開新局維持高對比可點狀態 -->
   <div class="btn-bar">
-    <a href="play.html" class="btn btn-reset">重開新局</a>
-    <a href="rules.html" class="btn btn-gray">查看規則</a>
+    <a href="play.html" class="btn btn-restart">🔄 重開新局</a>
+    <a href="rules.html" class="btn btn-rules">📖 查看規則</a>
   </div>
 </div>
 
@@ -367,16 +380,13 @@
     return questStatus.findIndex(s => s === null);
   }
 
-  // 觸發縮放彈跳動畫
   function triggerBounce(node) {
     if (!node) return;
     node.classList.remove('pop-bounce');
-    // 強制重繪以重啟 CSS 動畫
     void node.offsetWidth;
     node.classList.add('pop-bounce');
   }
 
-  // 點擊「成功」或「失敗」按鈕
   function resolveCurrentQuest(result) {
     const curIdx = getCurrentQuestIndex();
     if (curIdx === -1) {
@@ -389,7 +399,7 @@
     if (node) {
       node.classList.remove('active-quest');
       node.classList.add(result);
-      triggerBounce(node); // 執行彈跳動畫
+      triggerBounce(node);
     }
 
     resetReject();
@@ -403,7 +413,6 @@
     updateBoardState();
   }
 
-  // 手動點擊圓圈修正
   function toggleQuestManual(index) {
     const node = document.getElementById(`q-${index}`);
     if (questStatus[index] === null) {
