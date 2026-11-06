@@ -12,6 +12,7 @@
       --text: #ffffff;
       --subtext: #aaaaaa;
       --accent: #f5a623;
+      --table-border: #333333;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -117,6 +118,29 @@
       align-items: center;
       justify-content: center;
     }
+    /* 任務人數表格樣式 */
+    .quest-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      margin-top: 8px;
+      font-size: 0.88rem;
+    }
+    .quest-table th, .quest-table td {
+      border: 1px solid var(--table-border);
+      padding: 8px 4px;
+    }
+    .quest-table th {
+      background-color: #2a2a2a;
+      color: var(--accent);
+    }
+    .quest-table td {
+      background-color: #1a1a1a;
+    }
+    .special-star {
+      color: #ff5252;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -135,20 +159,116 @@
   <!-- 2. 規則說明頁 -->
   <div id="page-rules" class="page">
     <h2>遊戲規則說明</h2>
+
+    <!-- 發牌與隊長選擇 -->
     <div class="card">
-      <h3 style="margin-top:0; color:var(--accent);">陣營勝負條件</h3>
+      <h3 style="margin-top:0; color:var(--accent);">🃏 抽牌發牌與隊長選擇</h3>
+      <p><b>1. 角色牌準備與抽取：</b><br>
+         • 根據遊玩人數取出對應數量的正義與邪惡陣營牌。<br>
+         • 將挑選好的特殊角色牌加入，不足人數由「亞瑟忠臣（普通好人）」與「莫德雷德爪牙（普通壞人）」補齊。<br>
+         • 牌面朝下洗勻後，每位玩家隨機抽取一張並私下查看身分，確認後蓋牌放在自己面前。</p>
+      <p><b>2. 隊長標記（皇冠牌）決定：</b><br>
+         • <b>首任隊長</b>：第一局由所有玩家隨機指定一人（例如抽籤、擲骰或由最資深玩家擔任）。<br>
+         • <b>隊長傳遞</b>：每輪任務隊伍提名投票結束（無論投票通過或被否決），隊長標記一律<b>順時針傳給下一位玩家</b>。<br>
+         • <b>五票否決機制</b>：同一輪任務若連續 5 次提名皆被全體投票否決，邪惡陣營直接獲得該局遊戲勝利。</p>
+    </div>
+
+    <!-- 五個任務出征人數表 -->
+    <div class="card">
+      <h3 style="margin-top:0; color:var(--accent);">🗺️ 5~10 人局任務人數表</h3>
+      <p style="margin:0 0 4px 0; font-size:0.85rem; color:var(--subtext);">每一欄代表該局該任務隊長需指派的人數：</p>
+      <table class="quest-table">
+        <thead>
+          <tr>
+            <th>人數</th>
+            <th>陣營</th>
+            <th>任務1</th>
+            <th>任務2</th>
+            <th>任務3</th>
+            <th>任務4</th>
+            <th>任務5</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>5 人</td>
+            <td>3好2壞</td>
+            <td>2</td>
+            <td>3</td>
+            <td>2</td>
+            <td>3</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td>6 人</td>
+            <td>4好2壞</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>3</td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>7 人</td>
+            <td>4好3壞</td>
+            <td>2</td>
+            <td>3</td>
+            <td>3</td>
+            <td>4<span class="special-star">*</span></td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>8 人</td>
+            <td>5好3壞</td>
+            <td>3</td>
+            <td>4</td>
+            <td>4</td>
+            <td>5<span class="special-star">*</span></td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>9 人</td>
+            <td>6好3壞</td>
+            <td>3</td>
+            <td>4</td>
+            <td>4</td>
+            <td>5<span class="special-star">*</span></td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>10 人</td>
+            <td>6好4壞</td>
+            <td>3</td>
+            <td>4</td>
+            <td>4</td>
+            <td>5<span class="special-star">*</span></td>
+            <td>5</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.8rem; color:#ff8a80; margin-top:6px; margin-bottom:0;">
+        <span class="special-star">* 雙失敗規則</span>：在 7 人（含）以上的對局中，<b>第 4 次任務必須出現 2 張以上失敗牌</b>才會判定為任務失敗；若只有 1 張失敗牌，該任務依然視為好人成功！
+      </p>
+    </div>
+
+    <!-- 陣營勝負與刺殺 -->
+    <div class="card">
+      <h3 style="margin-top:0; color:var(--accent);">🏆 勝負條件</h3>
       <p>• <b>正義陣營（好人）</b>：成功完成 3 次任務，且梅林未被刺殺即獲勝。<br>
-         • <b>邪惡陣營（壞人）</b>：讓 3 次任務失敗，或在好人贏得 3 次任務後由刺客成功刺殺梅林即獲勝。</p>
+         • <b>邪惡陣營（壞人）</b>：累積 3 次任務失敗；或好人獲勝後刺客成功指認並刺殺梅林；或同一任務連續 5 次組隊表決失敗。</p>
     </div>
+
+    <!-- 特殊角色能力 -->
     <div class="card">
-      <h3 style="margin-top:0; color:var(--accent);">特殊角色能力</h3>
-      <p>• <b>梅林</b>：知道所有壞人（莫德雷德除外），但不能暴露身分。<br>
-         • <b>刺客</b>：壞人方，在好人 3 勝時可刺殺一人，若命中梅林則逆轉獲勝。<br>
-         • <b>派西維爾</b>：能看見梅林與莫甘娜兩人豎大拇指，但無法分清誰是誰。<br>
-         • <b>莫甘娜</b>：假扮梅林，混淆派西維爾的視線。<br>
-         • <b>莫德雷德</b>：邪惡首領，在天黑時梅林看不見他。<br>
-         • <b>奧伯倫</b>：孤魂野鬼，不與壞人同伴互認，壞人也不知道他。</p>
+      <h3 style="margin-top:0; color:var(--accent);">🎭 特殊角色能力清單</h3>
+      <p>• <b>梅林</b>：正義陣營，開局知道所有壞人（莫德雷德除外），但必須隱藏身分引導好人。<br>
+         • <b>刺客</b>：邪惡陣營，有梅林就必須有刺客，於好人贏得 3 個任務時發動刺殺。<br>
+         • <b>派西維爾</b>：正義陣營，夜間可見梅林與莫甘娜舉手，但不知道各自身分。<br>
+         • <b>莫甘娜</b>：邪惡陣營，夜間冒充梅林舉手以迷惑派西維爾。<br>
+         • <b>莫德雷德</b>：邪惡首領，夜間梅林辨認壞人時不舉手，隱身於好人視野外。<br>
+         • <b>奧伯倫</b>：孤魂野鬼，邪惡陣營但不與壞人互認，壞人夜間也看不到他。</p>
     </div>
+
     <button class="btn btn-secondary" onclick="showPage('page-home')">返回首頁</button>
   </div>
 
@@ -165,6 +285,10 @@
         <button class="player-btn" onclick="setPlayers(8)">8 人</button>
         <button class="player-btn" onclick="setPlayers(9)">9 人</button>
         <button class="player-btn" onclick="setPlayers(10)">10 人</button>
+      </div>
+      <!-- 動態提示該人數各任務出征人數 -->
+      <div id="quest-roster" style="font-size:0.85rem; color:#bbb; background:#121212; padding:8px 12px; border-radius:6px; margin-top:4px;">
+        任務指派人數：[2, 3, 2, 3, 3]
       </div>
     </div>
 
@@ -251,20 +375,18 @@
 </div>
 
 <script>
-  // 頁面切換控制
   function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
   }
 
-  // 人數配置表
   const playerConfigs = {
-    5: "3 好 2 壞",
-    6: "4 好 2 壞",
-    7: "4 好 3 壞",
-    8: "5 好 3 壞",
-    9: "6 好 3 壞",
-    10: "6 好 4 壞"
+    5: { desc: "3 好 2 壞", quests: "任務指派人數：[2, 3, 2, 3, 3]" },
+    6: { desc: "4 好 2 壞", quests: "任務指派人數：[2, 3, 4, 3, 4]" },
+    7: { desc: "4 好 3 壞", quests: "任務指派人數：[2, 3, 3, 4*, 4] (*需2張失敗牌)" },
+    8: { desc: "5 好 3 壞", quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" },
+    9: { desc: "6 好 3 壞", quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" },
+    10: { desc: "6 好 4 壞", quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" }
   };
 
   let currentPlayerCount = 5;
@@ -274,10 +396,11 @@
     document.querySelectorAll('.player-btn').forEach(btn => {
       btn.classList.toggle('selected', btn.textContent.includes(num));
     });
-    document.getElementById('player-summary').textContent = `${num} 人（${playerConfigs[num]}）`;
+    document.getElementById('player-summary').textContent = `${num} 人（${playerConfigs[num].desc}）`;
+    document.getElementById('quest-roster').textContent = playerConfigs[num].quests;
   }
 
-  // 角色防呆連動：有梅林就必須有刺客
+  // 角色防呆連動
   function onMerlinChange() {
     const merlin = document.getElementById('role-merlin');
     const assassin = document.getElementById('role-assassin');
@@ -298,7 +421,7 @@
     document.querySelectorAll('.role-item input[type="checkbox"]').forEach(cb => cb.checked = false);
   }
 
-  // 語音播放與流程控制
+  // 語音主持控制
   let isCancelled = false;
 
   function speak(text) {
@@ -308,7 +431,7 @@
       
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'zh-TW';
-      utterance.rate = 0.85; // 沉穩主持語速
+      utterance.rate = 0.85;
       utterance.onend = () => resolve();
       utterance.onerror = () => resolve();
       window.speechSynthesis.speak(utterance);
@@ -384,7 +507,7 @@
 
     // 5. 天亮
     await speak("天亮了，所有人請睜開眼睛！");
-    document.getElementById('status-text').textContent = "夜間結束，請開始發言！";
+    document.getElementById('status-text').textContent = "夜間結束，請第一位隊長開始發言提名！";
   }
 
   function stopNight() {
