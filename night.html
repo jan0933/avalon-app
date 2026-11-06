@@ -217,8 +217,8 @@
     return new Promise((resolve) => {
       if (isCancelled) return resolve();
 
-      // 將「邪惡」的發音替換為「邪、惡」
-      const spokenText = text.replaceAll('邪惡', '邪、惡');
+      // 將「邪惡」的發音替換為「邪噁」
+      const spokenText = text.replaceAll('邪惡', '邪噁');
 
       const utterance = new SpeechSynthesisUtterance(spokenText);
       utterance.lang = 'zh-TW';
