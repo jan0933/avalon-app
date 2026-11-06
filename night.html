@@ -174,12 +174,12 @@
     const list = [];
     list.push({ text: "天黑請閉眼。請所有玩家雙手握拳，置於桌面上。", wait: 3500 });
 
-    let evilText = config.oberon ? "除了奧伯倫以外的反派陣營玩家" : "反派陣營玩家";
+    let evilText = config.oberon ? "除了奧伯倫以外的邪惡陣營玩家" : "邪惡陣營玩家";
     list.push({ text: `${evilText}請睜開眼睛，互相確認同伴。`, wait: 5000 });
-    list.push({ text: "反派陣營玩家，請閉上眼睛。", wait: 3000 });
+    list.push({ text: "邪惡陣營玩家，請閉上眼睛。", wait: 3000 });
 
     if (config.merlin) {
-      let evilThumb = config.mordred ? "除了莫德雷德以外的反派陣營玩家" : "反派陣營玩家";
+      let evilThumb = config.mordred ? "除了莫德雷德以外的邪惡陣營玩家" : "邪惡陣營玩家";
       list.push({ text: `${evilThumb}，請豎起大拇指，讓梅林辨認。`, wait: 2500 });
       list.push({ text: "梅林，請睜開眼睛。", wait: 4000 });
       list.push({ text: `梅林請閉上眼睛，${evilThumb}請收起大拇指。`, wait: 3000 });
