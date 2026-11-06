@@ -277,7 +277,7 @@
     <div class="quest-grid" id="quest-grid"></div>
 
     <div id="quest-detail-tip" style="font-size:0.95rem; color:var(--accent); text-align:center; min-height:1.4em; font-weight:bold;">
-      當前進行：第 1 任務，需派 2 人出征
+      當前進行：第 1 回合任務，需派 2 人出征
     </div>
   </div>
 
@@ -458,6 +458,7 @@
     document.getElementById('result-modal').classList.remove('active');
   });
 
+  // 任務結算：語音改為「第 X 回合任務...」
   function resolveCurrentQuest(result) {
     const curIdx = getCurrentQuestIndex();
     if (curIdx === -1) {
@@ -476,9 +477,9 @@
     resetReject(false);
 
     if (result === 'success') {
-      speakRaw(`第 ${curIdx + 1} 次任務成功！正義陣營獲得一分！`);
+      speakRaw(`第 ${curIdx + 1} 回合任務成功！正義陣營獲得一分！`);
     } else {
-      speakRaw(`第 ${curIdx + 1} 次任務失敗！邪惡陣營獲得一分！`);
+      speakRaw(`第 ${curIdx + 1} 回合任務失敗！邪惡陣營獲得一分！`);
     }
 
     updateBoardState(true);
@@ -541,7 +542,7 @@
       });
       const count = currentQuests[nextIdx];
       const double = (players >= 7 && nextIdx === 3) ? "（需 2 張失敗牌才算失敗）" : "";
-      tip.textContent = `當前進行：第 ${nextIdx + 1} 任務，需派 ${count} 人出征 ${double}`;
+      tip.textContent = `當前進行：第 ${nextIdx + 1} 回合任務，需派 ${count} 人出征 ${double}`;
       tip.style.color = "var(--accent)";
     }
   }
