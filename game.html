@@ -44,7 +44,7 @@
       gap: 12px;
     }
 
-    /* 5個任務圓圈進度條 */
+    /* 1. 任務出征板進度條 */
     .quest-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -92,7 +92,7 @@
       background: #282828;
       border: 2px solid #444;
       color: #fff;
-      padding: 11px 12px;
+      padding: 12px;
       border-radius: 8px;
       font-size: 0.95rem;
       font-weight: bold;
@@ -102,6 +102,7 @@
       justify-content: center;
       gap: 6px;
       transition: all 0.2s ease;
+      width: 100%;
     }
     .btn-voice-action:active {
       background: #383838;
@@ -117,14 +118,14 @@
       transform: scale(1.02);
     }
 
-    /* 任務板成功/失敗按鈕 */
+    /* 任務成功/失敗結算按鈕 */
     .quest-resolve-btns {
       display: flex;
       gap: 10px;
     }
     .btn-resolve {
       flex: 1;
-      padding: 13px 8px;
+      padding: 14px 8px;
       border-radius: 10px;
       font-size: 0.98rem;
       font-weight: bold;
@@ -229,7 +230,7 @@
 <div class="container">
   <h2>🛡️ 白天任務進行中</h2>
 
-  <!-- 1. 任務出征板 -->
+  <!-- 步驟 1：任務出征板（純粹查看各輪人數進度與目標） -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>🗺️ 任務出征板 (<span id="player-num-tag">5</span> 人局)</b>
@@ -242,31 +243,16 @@
     <div id="quest-detail-tip" style="font-size:0.95rem; color:var(--accent); text-align:center; min-height:1.4em; font-weight:bold;">
       當前進行：第 1 任務，需派 2 人出征
     </div>
-
-    <!-- 隊員提交任務卡語音按鈕（帶變色效果） -->
-    <button class="btn-voice-action" onclick="speakWithHighlight(this, '組隊通過！任務隊員請閉上雙眼，私下提交任務卡！')">
-      🤫 隊員閉眼提交任務卡
-    </button>
-
-    <!-- 任務成功 / 失敗 按鈕 -->
-    <div class="quest-resolve-btns">
-      <button id="btn-quest-good" class="btn-resolve btn-resolve-good">
-        🏆 當前任務成功
-      </button>
-      <button id="btn-quest-evil" class="btn-resolve btn-resolve-evil">
-        💀 當前任務失敗
-      </button>
-    </div>
   </div>
 
-  <!-- 2. 隊長組隊否決計數器 -->
+  <!-- 步驟 2：隊長組隊提名與投票否決計數器 -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>⚠️ 隊長組隊提名與否決計數</b>
       <span style="font-size:0.8rem; color:#ff5252;">連續 5 次否決壞人勝</span>
     </div>
 
-    <!-- 隊長提名與投票語音（帶變色效果） -->
+    <!-- 提名與投票語音 -->
     <div style="display:flex; gap:8px;">
       <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '請當前隊長開始發言，並提名出征隊員！')">
         🗣️ 請隊長提名隊伍
@@ -290,11 +276,31 @@
     </div>
   </div>
 
-  <!-- 3. 湖中女神紀錄板（若有啟用才顯示） -->
+  <!-- 步驟 3：獨立欄位 - 執行出征與任務結算（組隊通過後執行） -->
+  <div class="card">
+    <b>⚔️ 執行出征與任務結算</b>
+    
+    <!-- 隊員閉眼出牌語音 -->
+    <button class="btn-voice-action" onclick="speakWithHighlight(this, '組隊通過！任務隊員請閉上雙眼，私下提交任務卡！')">
+      🤫 隊員閉眼提交任務卡
+    </button>
+
+    <!-- 成功 / 失敗 判定按鈕 -->
+    <div class="quest-resolve-btns">
+      <button id="btn-quest-good" class="btn-resolve btn-resolve-good">
+        🏆 當前任務成功
+      </button>
+      <button id="btn-quest-evil" class="btn-resolve btn-resolve-evil">
+        💀 當前任務失敗
+      </button>
+    </div>
+  </div>
+
+  <!-- 步驟 4：湖中女神紀錄板（若有啟用才顯示） -->
   <div class="card lake-card" id="lady-container" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b style="color:var(--lake-blue);">🌊 湖中女神驗人紀錄</b>
-      <button class="btn-voice-action" style="padding:6px 10px; font-size:0.8rem;" onclick="speakLadyVoice(this)">語音宣告驗人</button>
+      <button class="btn-voice-action" style="padding:6px 10px; font-size:0.8rem; width:auto;" onclick="speakLadyVoice(this)">語音宣告驗人</button>
     </div>
     <div style="font-size:0.8rem; color:var(--subtext); line-height:1.4;">
       起始持有人：第 1 任隊長右側玩家。<br>
@@ -333,7 +339,6 @@
   const currentLevel = parseInt(urlParams.get('level')) || 1;
   const useLady = parseInt(urlParams.get('lady')) === 1;
 
-  // 判斷當前局是否有梅林（Lv.1 無特殊牌沒有梅林，Lv.2~Lv.6 均有梅林與刺客）
   const hasMerlin = (currentLevel >= 2);
 
   document.getElementById('player-num-tag').textContent = players;
@@ -429,7 +434,6 @@
     const btnGood = document.getElementById('btn-quest-good');
     const btnEvil = document.getElementById('btn-quest-evil');
 
-    // 正義陣營滿 3 勝：依據是否有梅林給予不同結算說明
     if (winGood >= 3) {
       if (hasMerlin) {
         tip.textContent = "🏆 正義陣營完成 3 次任務！進入刺客刺殺梅林階段！";
@@ -443,7 +447,6 @@
       return;
     } 
     
-    // 邪惡陣營滿 3 敗
     if (winEvil >= 3) {
       tip.textContent = "💀 邪惡陣營完成 3 次任務失敗！邪惡陣營獲勝！";
       tip.style.color = "#ef9a9a";
