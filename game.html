@@ -292,7 +292,6 @@
       <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '請當前隊長開始發言，並提名出征隊員！')">
         🗣️ 請隊長提名隊伍
       </button>
-      <!-- 表決倒數語音 -->
       <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '全體玩家請準備，3、2、1，請翻牌。')">
         🗳️ 表決倒數 321
       </button>
@@ -306,14 +305,13 @@
       <div class="reject-dot" data-val="5" style="border-color:#ff5252; color:#ff5252;">5</div>
     </div>
 
-    <!-- 增加否決與通過時的語音播報 -->
     <div style="display:flex; gap:10px; margin-top:2px;">
       <button id="btn-reject-add" class="btn-voice-action" style="flex:1; padding:10px; font-size:0.9rem;">組隊被否決 (+1)</button>
       <button id="btn-reject-reset" class="btn-voice-action" style="flex:1; padding:10px; font-size:0.9rem;">組隊通過 (歸零)</button>
     </div>
   </div>
 
-  <!-- 步驟 3：執行出征與任務結算（已刪除隊員提交卡按鈕，保留直接判定） -->
+  <!-- 步驟 3：執行出征與任務結算 -->
   <div class="card">
     <b>⚔️ 執行出征與任務結算</b>
     <div class="quest-resolve-btns">
@@ -556,7 +554,6 @@
     resolveCurrentQuest('fail');
   });
 
-  // 連續否決計數邏輯
   let currentReject = 0;
   function updateRejectUI() {
     document.querySelectorAll('.reject-dot').forEach(dot => {
@@ -570,7 +567,6 @@
     }
   }
 
-  // 組隊被否決 (+1)
   function addReject(btn) {
     if (currentReject < 5) {
       currentReject++;
@@ -581,7 +577,6 @@
     }
   }
 
-  // 組隊通過 (歸零)
   function resetReject(withVoice = true, btn = null) {
     currentReject = 0;
     updateRejectUI();
@@ -606,12 +601,11 @@
     });
   });
 
-  // 湖中女神語音
   function speakLadyVoice(btn) {
     speakWithHighlight(btn, "任務結算完畢。請湖中女神持有者，選擇一名玩家進行陣營查驗。被查驗者請私下告知真實陣營，並接過女神標記！");
   }
 
-  // 語音播放與按鍵外框變色發光連動
+  // 語音播放與外框變色發光連動（自動將「邪惡」替換為「邪厄」發音）
   function speakWithHighlight(buttonEl, msg) {
     try {
       window.speechSynthesis.cancel();
@@ -619,7 +613,9 @@
 
       if (buttonEl) buttonEl.classList.add('speaking');
 
-      const utterance = new SpeechSynthesisUtterance(msg);
+      const spokenText = msg.replaceAll('邪惡', '邪厄');
+
+      const utterance = new SpeechSynthesisUtterance(spokenText);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.9;
 
@@ -637,10 +633,13 @@
     }
   }
 
+  // 獨立廣播工具（自動將「邪惡」替換為「邪厄」發音）
   function speakRaw(msg) {
     try {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(msg);
+      const spokenText = msg.replaceAll('邪惡', '邪厄');
+
+      const utterance = new SpeechSynthesisUtterance(spokenText);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
