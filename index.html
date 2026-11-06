@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>阿瓦隆主持語音助理</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 20px; }
+    .role-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 30px;
+    }
+    label {
+      background: #1e1e1e;
+      padding: 14px 18px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      font-size: 1.1rem;
+    }
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+    }
+    button {
+      background: #e50914;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      font-size: 1.2rem;
+      border-radius: 30px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 320px;
+      font-weight: bold;
+    }
+    #status {
+      margin-top: 25px;
+      font-size: 1.1rem;
+      color: #ffcc00;
+      text-align: center;
+      min-height: 1.5em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>阿瓦隆主持語音助理</h1>
+
+  <div class="role-list">
+    <label><input type="checkbox" id="merlin" checked> 梅林（Merlin）</label>
+    <label><input type="checkbox" id="percival" checked> 派西維爾（Percival）</label>
+    <label><input type="checkbox" id="morgana" checked> 莫甘娜（Morgana）</label>
+    <label><input type="checkbox" id="mordred"> 莫德雷德（Mordred）</label>
+    <label><input type="checkbox" id="oberon"> 奧伯倫（Oberon）</label>
+  </div>
+
+  <button id="start-btn">開始夜間流程</button>
+  <div id="status">準備就緒</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
