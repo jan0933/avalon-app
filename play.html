@@ -137,6 +137,35 @@
       color: #000;
       font-weight: bold;
     }
+    /* 湖中女神開關樣式 */
+    .lady-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .lady-toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #333; transition: .3s; border-radius: 26px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px;
+      background-color: white; transition: .3s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(22px); }
+    input:disabled + .slider { opacity: 0.3; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -159,8 +188,22 @@
     </div>
   </div>
 
+  <!-- 湖中女神擴充選項（獨立配件） -->
   <div class="card">
-    <b>選擇配置等級：</b>
+    <div class="lady-box">
+      <div>
+        <b>🌊 湖中女神 (Lady of the Lake)</b>
+        <div id="lady-hint" style="font-size:0.8rem; color:var(--subtext);">建議 7 人（含）以上使用</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="lady-toggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <b>選擇角色配置等級：</b>
     <div class="preset-list">
 
       <label class="preset-item selected" data-level="1">
@@ -233,6 +276,9 @@
   let currentPlayerCount = 5;
   let currentLevel = 1;
 
+  const ladyToggle = document.getElementById('lady-toggle');
+  const ladyHint = document.getElementById('lady-hint');
+
   function setPlayers(num) {
     currentPlayerCount = num;
     document.querySelectorAll('.player-btn').forEach(btn => {
@@ -240,6 +286,18 @@
     });
     document.getElementById('player-summary').textContent = `${num} 人（${playerConfigs[num].desc}）`;
     document.getElementById('quest-roster').textContent = playerConfigs[num].quests;
+
+    // 湖中女神防呆：未滿 7 人強制鎖定
+    if (num < 7) {
+      ladyToggle.checked = false;
+      ladyToggle.disabled = true;
+      ladyHint.textContent = "未滿 7 人不開放使用湖中女神";
+      ladyHint.style.color = "#888";
+    } else {
+      ladyToggle.disabled = false;
+      ladyHint.textContent = "可於第 2、3、4 任務結束後發動驗人";
+      ladyHint.style.color = "var(--subtext)";
+    }
 
     updatePresetAvailability();
   }
@@ -292,9 +350,10 @@
     });
   });
 
-  // 點擊帶參數跳轉到獨立主持頁
+  // 跳轉並將 lady=true/false 帶給 night.html 與後續頁面
   document.getElementById('btn-go-night').addEventListener('click', () => {
-    window.location.href = `night.html?level=${currentLevel}`;
+    const useLady = ladyToggle.checked ? 1 : 0;
+    window.location.href = `night.html?level=${currentLevel}&players=${currentPlayerCount}&lady=${useLady}`;
   });
 
   setPlayers(5);
