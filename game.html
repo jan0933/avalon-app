@@ -109,7 +109,7 @@
       transform: scale(0.98);
     }
 
-    /* 語音播放時：按鍵外框變色與發光特效 */
+    /* 語音播放時：按鍵外框變色發光 */
     .btn-voice-action.speaking {
       border-color: var(--accent) !important;
       background: #382d1d !important;
@@ -223,6 +223,43 @@
       color: #ffffff !important;
       border: 1px solid #4f4f4f !important;
     }
+
+    /* 勝負結算彈跳視窗 (Modal) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 999;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: #1e1e1e;
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 24px 20px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      animation: popBounce 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .modal-icon { font-size: 3rem; margin-bottom: -4px; }
+    .modal-title { font-size: 1.35rem; font-weight: bold; color: #fff; }
+    .modal-desc { font-size: 1rem; color: #ddd; line-height: 1.5; }
+    .modal-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -237,7 +274,6 @@
       <span style="font-size:0.75rem; color:var(--subtext);">點擊節點可直接修正</span>
     </div>
 
-    <!-- 5個任務圓圈進度 -->
     <div class="quest-grid" id="quest-grid"></div>
 
     <div id="quest-detail-tip" style="font-size:0.95rem; color:var(--accent); text-align:center; min-height:1.4em; font-weight:bold;">
@@ -252,12 +288,12 @@
       <span style="font-size:0.8rem; color:#ff5252;">連續 5 次否決壞人勝</span>
     </div>
 
-    <!-- 提名與投票語音 -->
     <div style="display:flex; gap:8px;">
       <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '請當前隊長開始發言，並提名出征隊員！')">
         🗣️ 請隊長提名隊伍
       </button>
-      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '全體玩家請準備，3、2、1，請投票！')">
+      <!-- 已更新播報詞：3、2、1請翻牌 -->
+      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakWithHighlight(this, '全體玩家請準備，3、2、1請翻牌！')">
         🗳️ 表決倒數 321
       </button>
     </div>
@@ -276,7 +312,7 @@
     </div>
   </div>
 
-  <!-- 步驟 3：執行出征與任務結算（已更新按鈕文字與全新廣播詞） -->
+  <!-- 步驟 3：執行出征與任務結算 -->
   <div class="card">
     <b>⚔️ 執行出征與任務結算</b>
     
@@ -284,7 +320,6 @@
       🃏 隊員提交任務卡
     </button>
 
-    <!-- 成功 / 失敗 判定按鈕 -->
     <div class="quest-resolve-btns">
       <button id="btn-quest-good" class="btn-resolve btn-resolve-good">
         🏆 當前任務成功
@@ -295,7 +330,7 @@
     </div>
   </div>
 
-  <!-- 步驟 4：湖中女神紀錄板（若有啟用才顯示） -->
+  <!-- 步驟 4：湖中女神紀錄板 -->
   <div class="card lake-card" id="lady-container" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b style="color:var(--lake-blue);">🌊 湖中女神驗人紀錄</b>
@@ -325,10 +360,23 @@
     </div>
   </div>
 
-  <!-- 底部列：重開新局與查看規則 -->
+  <!-- 底部列 -->
   <div class="btn-bar">
     <a href="play.html" class="btn btn-restart">🔄 重開新局</a>
     <a href="rules.html" class="btn btn-rules">📖 查看規則</a>
+  </div>
+</div>
+
+<!-- 勝負結果彈出視窗 (Modal) -->
+<div id="result-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div id="modal-icon" class="modal-icon">🏆</div>
+    <div id="modal-title" class="modal-title">正義陣營完成 3 次任務！</div>
+    <div id="modal-desc" class="modal-desc">進入刺客刺殺梅林階段！請刺客現身並指認梅林。</div>
+    <div class="modal-btns">
+      <a href="play.html" class="btn btn-restart" style="padding:12px;">🔄 再玩一局</a>
+      <button id="btn-close-modal" class="btn btn-rules" style="padding:12px;">查看戰情盤面</button>
+    </div>
   </div>
 </div>
 
@@ -384,6 +432,39 @@
     node.classList.add('pop-bounce');
   }
 
+  // 顯示自訂勝負彈窗
+  function showResultModal(type) {
+    const modal = document.getElementById('result-modal');
+    const icon = document.getElementById('modal-icon');
+    const title = document.getElementById('modal-title');
+    const desc = document.getElementById('modal-desc');
+
+    if (type === 'good') {
+      icon.textContent = "🏆";
+      title.textContent = "正義陣營獲得 3 場勝利！";
+      title.style.color = "#64b5f6";
+      if (hasMerlin) {
+        desc.textContent = "即刻進入刺客刺殺梅林階段！請刺客現身，與同伴討論並指認梅林。";
+        speakRaw("正義陣營已完成三次任務！進入刺客刺殺梅林階段！");
+      } else {
+        desc.textContent = "恭喜好人陣營成功守護王國，直接贏得最終勝利！";
+        speakRaw("正義陣營已完成三次任務！好人直接贏得最終勝利！");
+      }
+    } else {
+      icon.textContent = "💀";
+      title.textContent = "邪惡陣營累積 3 次任務失敗！";
+      title.style.color = "#ef9a9a";
+      desc.textContent = "阿瓦隆已徹底淪陷，邪惡陣營獲得最終勝利！";
+      speakRaw("邪惡陣營已累積三次任務失敗！邪惡陣營獲勝！");
+    }
+
+    modal.classList.add('active');
+  }
+
+  document.getElementById('btn-close-modal').addEventListener('click', () => {
+    document.getElementById('result-modal').classList.remove('active');
+  });
+
   function resolveCurrentQuest(result) {
     const curIdx = getCurrentQuestIndex();
     if (curIdx === -1) {
@@ -407,7 +488,7 @@
       speakRaw(`第 ${curIdx + 1} 次任務失敗！邪惡陣營獲得一分！`);
     }
 
-    updateBoardState();
+    updateBoardState(true);
   }
 
   function toggleQuestManual(index) {
@@ -423,10 +504,10 @@
       node.className = 'quest-node';
     }
     triggerBounce(node);
-    updateBoardState();
+    updateBoardState(false);
   }
 
-  function updateBoardState() {
+  function updateBoardState(triggerModal = false) {
     const winGood = questStatus.filter(s => s === 'success').length;
     const winEvil = questStatus.filter(s => s === 'fail').length;
     const tip = document.getElementById('quest-detail-tip');
@@ -434,15 +515,12 @@
     const btnEvil = document.getElementById('btn-quest-evil');
 
     if (winGood >= 3) {
-      if (hasMerlin) {
-        tip.textContent = "🏆 正義陣營完成 3 次任務！進入刺客刺殺梅林階段！";
-      } else {
-        tip.textContent = "🏆 正義陣營完成 3 次任務！好人直接獲得最終勝利！";
-      }
+      tip.textContent = hasMerlin ? "🏆 正義陣營完成 3 次任務！進入刺客刺殺階段！" : "🏆 正義陣營完成 3 次任務！好人獲勝！";
       tip.style.color = "#64b5f6";
       document.querySelectorAll('.quest-node').forEach(n => n.classList.remove('active-quest'));
       btnGood.disabled = true;
       btnEvil.disabled = true;
+      if (triggerModal) showResultModal('good');
       return;
     } 
     
@@ -452,6 +530,7 @@
       document.querySelectorAll('.quest-node').forEach(n => n.classList.remove('active-quest'));
       btnGood.disabled = true;
       btnEvil.disabled = true;
+      if (triggerModal) showResultModal('evil');
       return;
     }
 
