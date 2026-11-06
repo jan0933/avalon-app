@@ -80,27 +80,6 @@
       background: #382d1d;
       font-weight: bold;
     }
-    .role-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #2a2a2a;
-    }
-    .role-item:last-child { border-bottom: none; }
-    .role-item label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.05rem;
-      flex: 1;
-    }
-    .role-item input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--primary);
-    }
-    .role-desc { font-size: 0.8rem; color: var(--subtext); }
     .voice-box {
       display: flex;
       justify-content: space-between;
@@ -114,6 +93,69 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 0.9rem;
+      font-weight: bold;
+    }
+    /* 配置單選清單 */
+    .preset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .preset-item {
+      background: #262626;
+      border: 2px solid #383838;
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .preset-item.selected {
+      border-color: var(--accent);
+      background: #382d1d;
+    }
+    .preset-item.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: #2a2a2a;
+      background: #1c1c1c;
+    }
+    .preset-radio {
+      margin-top: 3px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+    .preset-content {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+    }
+    .preset-title {
+      font-weight: bold;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preset-desc {
+      font-size: 0.82rem;
+      color: var(--subtext);
+      line-height: 1.4;
+    }
+    .preset-badge {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #444;
+      color: #fff;
+    }
+    .preset-item.selected .preset-badge {
+      background: var(--accent);
+      color: #000;
       font-weight: bold;
     }
     #status-card {
@@ -234,52 +276,59 @@
       </div>
     </div>
 
+    <!-- 等級配置選項 -->
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <b>特殊角色牌：</b>
-        <span style="font-size:0.85rem; color:var(--subtext);">（預設全部不使用）</span>
-      </div>
+      <b>選擇配置等級：</b>
+      <div class="preset-list">
 
-      <div class="role-item">
-        <label>
-          <input type="checkbox" id="role-merlin">
-          <div>梅林 (Merlin)<div class="role-desc">好人｜知曉壞人，被刺殺即敗</div></div>
+        <label class="preset-item selected" data-level="1">
+          <input type="radio" name="role-preset" value="1" class="preset-radio" checked>
+          <div class="preset-content">
+            <div class="preset-title">Lv.1 無特殊牌 <span class="preset-badge">新手局</span></div>
+            <div class="preset-desc">全體為忠臣與爪牙，夜間僅壞人互認。</div>
+          </div>
         </label>
-      </div>
 
-      <div class="role-item">
-        <label>
-          <input type="checkbox" id="role-assassin">
-          <div>刺客 (Assassin)<div class="role-desc">壞人｜必須與梅林同時存在</div></div>
+        <label class="preset-item" data-level="2">
+          <input type="radio" name="role-preset" value="2" class="preset-radio">
+          <div class="preset-content">
+            <div class="preset-title">Lv.2 經典雙雄 <span class="preset-badge">基礎對決</span></div>
+            <div class="preset-desc">梅林、刺客</div>
+          </div>
         </label>
-      </div>
 
-      <div class="role-item">
-        <label>
-          <input type="checkbox" id="role-percival">
-          <div>派西維爾 (Percival)<div class="role-desc">好人｜辨識梅林與莫甘娜</div></div>
+        <label class="preset-item" data-level="3">
+          <input type="radio" name="role-preset" value="3" class="preset-radio">
+          <div class="preset-content">
+            <div class="preset-title">Lv.3 標準進階 <span class="preset-badge">熱門推薦</span></div>
+            <div class="preset-desc">梅林、派西維爾、刺客、莫甘娜</div>
+          </div>
         </label>
-      </div>
 
-      <div class="role-item">
-        <label>
-          <input type="checkbox" id="role-morgana">
-          <div>莫甘娜 (Morgana)<div class="role-desc">壞人｜偽裝成梅林迷惑派西維爾</div></div>
+        <label class="preset-item" data-level="4">
+          <input type="radio" name="role-preset" value="4" class="preset-radio">
+          <div class="preset-content">
+            <div class="preset-title">Lv.4 隱匿之影 <span class="preset-badge">7人以上</span></div>
+            <div class="preset-desc">梅林、派西維爾、刺客、莫甘娜、莫德雷德</div>
+          </div>
         </label>
-      </div>
 
-      <div class="role-item">
-        <label>
-          <input type="checkbox" id="role-mordred">
-          <div>莫德雷德 (Mordred)<div class="role-desc">壞人｜梅林看不到他的身分</div></div>
+        <label class="preset-item" data-level="5">
+          <input type="radio" name="role-preset" value="5" class="preset-radio">
+          <div class="preset-content">
+            <div class="preset-title">Lv.5 孤魂狂亂 <span class="preset-badge">7人以上</span></div>
+            <div class="preset-desc">梅林、派西維爾、刺客、莫甘娜、奧伯倫</div>
+          </div>
         </label>
-      </div>
 
-      <div class="role-item">
-        <label>
-          <input type="checkbox" id="role-oberon">
-          <div>奧伯倫 (Oberon)<div class="role-desc">壞人｜不與壞人互認的獨行者</div></div>
+        <label class="preset-item" data-level="6">
+          <input type="radio" name="role-preset" value="6" class="preset-radio">
+          <div class="preset-content">
+            <div class="preset-title">Lv.6 全角色神魔之戰 <span class="preset-badge">10人限定</span></div>
+            <div class="preset-desc">梅林、派西維爾、刺客、莫甘娜、莫德雷德、奧伯倫</div>
+          </div>
         </label>
+
       </div>
     </div>
 
@@ -305,17 +354,30 @@
     if (target) target.classList.add('active');
   }
 
+  // 人數詳細資訊與各配置所需壞人數量
   const playerConfigs = {
-    5: { desc: "3 好 2 壞", quests: "任務指派人數：[2, 3, 2, 3, 3]" },
-    6: { desc: "4 好 2 壞", quests: "任務指派人數：[2, 3, 4, 3, 4]" },
-    7: { desc: "4 好 3 壞", quests: "任務指派人數：[2, 3, 3, 4*, 4] (*需2張失敗牌)" },
-    8: { desc: "5 好 3 壞", quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" },
-    9: { desc: "6 好 3 壞", quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" },
-    10: { desc: "6 好 4 壞", quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" }
+    5: { desc: "3 好 2 壞", evilMax: 2, quests: "任務指派人數：[2, 3, 2, 3, 3]" },
+    6: { desc: "4 好 2 壞", evilMax: 2, quests: "任務指派人數：[2, 3, 4, 3, 4]" },
+    7: { desc: "4 好 3 壞", evilMax: 3, quests: "任務指派人數：[2, 3, 3, 4*, 4] (*需2張失敗牌)" },
+    8: { desc: "5 好 3 壞", evilMax: 3, quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" },
+    9: { desc: "6 好 3 壞", evilMax: 3, quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" },
+    10: { desc: "6 好 4 壞", evilMax: 4, quests: "任務指派人數：[3, 4, 4, 5*, 5] (*需2張失敗牌)" }
+  };
+
+  // 各等級所對應的角色明細與壞人張數
+  const presetDefinitions = {
+    1: { evilRequired: 0, merlin: false, percival: false, morgana: false, mordred: false, oberon: false },
+    2: { evilRequired: 1, merlin: true,  percival: false, morgana: false, mordred: false, oberon: false }, // 刺客
+    3: { evilRequired: 2, merlin: true,  percival: true,  morgana: true,  mordred: false, oberon: false }, // 刺客, 莫甘娜
+    4: { evilRequired: 3, merlin: true,  percival: true,  morgana: true,  mordred: true,  oberon: false }, // 刺客, 莫甘娜, 莫德雷德
+    5: { evilRequired: 3, merlin: true,  percival: true,  morgana: true,  mordred: false, oberon: true  }, // 刺客, 莫甘娜, 奧伯倫
+    6: { evilRequired: 4, merlin: true,  percival: true,  morgana: true,  mordred: true,  oberon: true  }  // 刺客, 莫甘娜, 莫德雷德, 奧伯倫
   };
 
   let currentPlayerCount = 5;
+  let currentLevel = 1;
 
+  // 人數變更與等級防呆更新
   function setPlayers(num) {
     currentPlayerCount = num;
     document.querySelectorAll('.player-btn').forEach(btn => {
@@ -323,21 +385,55 @@
     });
     document.getElementById('player-summary').textContent = `${num} 人（${playerConfigs[num].desc}）`;
     document.getElementById('quest-roster').textContent = playerConfigs[num].quests;
+
+    updatePresetAvailability();
   }
 
-  // 梅林與刺客防呆連動
-  const merlinCheckbox = document.getElementById('role-merlin');
-  const assassinCheckbox = document.getElementById('role-assassin');
+  function updatePresetAvailability() {
+    const evilLimit = playerConfigs[currentPlayerCount].evilMax;
 
-  merlinCheckbox.addEventListener('change', () => {
-    if (merlinCheckbox.checked) assassinCheckbox.checked = true;
+    document.querySelectorAll('.preset-item').forEach(item => {
+      const level = parseInt(item.getAttribute('data-level'));
+      const requiredEvil = presetDefinitions[level].evilRequired;
+      const radio = item.querySelector('input[type="radio"]');
+
+      if (requiredEvil > evilLimit) {
+        // 不符合人數，禁用
+        item.classList.add('disabled');
+        radio.disabled = true;
+        if (currentLevel === level) {
+          // 若當前選到不合法的等級，自動退回合法的 Lv.3 或 Lv.1
+          selectLevel(evilLimit >= 2 ? 3 : 1);
+        }
+      } else {
+        item.classList.remove('disabled');
+        radio.disabled = false;
+      }
+    });
+  }
+
+  function selectLevel(level) {
+    const evilLimit = playerConfigs[currentPlayerCount].evilMax;
+    if (presetDefinitions[level].evilRequired > evilLimit) return;
+
+    currentLevel = level;
+    document.querySelectorAll('.preset-item').forEach(item => {
+      const lvl = parseInt(item.getAttribute('data-level'));
+      const isCurrent = (lvl === level);
+      item.classList.toggle('selected', isCurrent);
+      item.querySelector('input[type="radio"]').checked = isCurrent;
+    });
+  }
+
+  // 監聽等級點擊
+  document.querySelectorAll('.preset-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const level = parseInt(item.getAttribute('data-level'));
+      selectLevel(level);
+    });
   });
 
-  assassinCheckbox.addEventListener('change', () => {
-    if (!assassinCheckbox.checked) merlinCheckbox.checked = false;
-  });
-
-  // 語音播放核心（使用系統預設發音）
+  // 語音播放核心
   let isCancelled = false;
 
   function speak(text) {
@@ -347,7 +443,7 @@
       
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'zh-TW';
-      utterance.rate = 0.88; // 稍微放緩節奏
+      utterance.rate = 0.88;
 
       utterance.onend = () => resolve();
       utterance.onerror = () => resolve();
@@ -375,22 +471,21 @@
     speak("天黑請閉眼，所有人請雙手握拳。");
   });
 
+  // 夜間主持流程
   async function startNight() {
     isCancelled = false;
     showPage('page-running');
     window.speechSynthesis.cancel();
 
-    const hasMerlin = document.getElementById('role-merlin').checked;
-    const hasPercival = document.getElementById('role-percival').checked;
-    const hasMorgana = document.getElementById('role-morgana').checked;
-    const hasMordred = document.getElementById('role-mordred').checked;
-    const hasOberon = document.getElementById('role-oberon').checked;
+    const config = presetDefinitions[currentLevel];
 
+    // 1. 天黑閉眼
     await speak("天黑請閉眼。請所有玩家雙手握拳，置於桌面上。");
     await wait(3000);
     if (isCancelled) return;
 
-    let evilPrompt = hasOberon ? "除了奧伯倫以外的邪惡陣營玩家" : "邪惡陣營玩家";
+    // 2. 邪惡陣營互認（若有奧伯倫則排除奧伯倫）
+    let evilPrompt = config.oberon ? "除了奧伯倫以外的邪惡陣營玩家" : "邪惡陣營玩家";
     await speak(`${evilPrompt}，請睜開眼睛，互相確認同伴。`);
     await wait(5000);
     if (isCancelled) return;
@@ -398,8 +493,9 @@
     await wait(3000);
     if (isCancelled) return;
 
-    if (hasMerlin) {
-      let evilThumb = hasMordred ? "除了莫德雷德以外的邪惡陣營玩家" : "邪惡陣營玩家";
+    // 3. 梅林辨認壞人（若有梅林才執行）
+    if (config.merlin) {
+      let evilThumb = config.mordred ? "除了莫德雷德以外的邪惡陣營玩家" : "邪惡陣營玩家";
       await speak(`${evilThumb}，請豎起大拇指，讓梅林辨認。`);
       await wait(2000);
       if (isCancelled) return;
@@ -411,8 +507,9 @@
       if (isCancelled) return;
     }
 
-    if (hasPercival) {
-      let thumbGroup = hasMorgana ? "梅林與莫甘娜" : "梅林";
+    // 4. 派西維爾辨認梅林與莫甘娜（若有派西維爾才執行）
+    if (config.percival) {
+      let thumbGroup = config.morgana ? "梅林與莫甘娜" : "梅林";
       await speak(`${thumbGroup}，請豎起大拇指。`);
       await wait(2000);
       if (isCancelled) return;
@@ -424,6 +521,7 @@
       if (isCancelled) return;
     }
 
+    // 5. 天亮
     await speak("天亮了，所有人請睜開眼睛！");
     document.getElementById('status-text').textContent = "夜間結束，請第一位隊長開始發言提名！";
   }
@@ -434,6 +532,7 @@
     showPage('page-setup');
   }
 
+  // 按鈕監聽綁定
   document.getElementById('btn-to-setup').addEventListener('click', () => showPage('page-setup'));
   document.getElementById('btn-to-rules').addEventListener('click', () => showPage('page-rules'));
   document.getElementById('btn-rules-back').addEventListener('click', () => showPage('page-home'));
@@ -447,6 +546,9 @@
       setPlayers(num);
     });
   });
+
+  // 初始化檢查
+  setPlayers(5);
 </script>
 
 </body>
