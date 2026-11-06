@@ -230,7 +230,7 @@
 <div class="container">
   <h2>🛡️ 白天任務進行中</h2>
 
-  <!-- 步驟 1：任務出征板（純粹查看各輪人數進度與目標） -->
+  <!-- 步驟 1：任務出征板 -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>🗺️ 任務出征板 (<span id="player-num-tag">5</span> 人局)</b>
@@ -276,13 +276,12 @@
     </div>
   </div>
 
-  <!-- 步驟 3：獨立欄位 - 執行出征與任務結算（組隊通過後執行） -->
+  <!-- 步驟 3：執行出征與任務結算（已更新按鈕文字與全新廣播詞） -->
   <div class="card">
     <b>⚔️ 執行出征與任務結算</b>
     
-    <!-- 隊員閉眼出牌語音 -->
-    <button class="btn-voice-action" onclick="speakWithHighlight(this, '組隊通過！任務隊員請閉上雙眼，私下提交任務卡！')">
-      🤫 隊員閉眼提交任務卡
+    <button class="btn-voice-action" onclick="speakWithHighlight(this, '組隊通過，任務隊員請將選擇的任務卡面朝下交給隊長')">
+      🃏 隊員提交任務卡
     </button>
 
     <!-- 成功 / 失敗 判定按鈕 -->
