@@ -14,6 +14,7 @@
       --accent: #f5a623;
       --good-blue: #1976d2;
       --evil-red: #d32f2f;
+      --lake-blue: #0288d1;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -42,7 +43,6 @@
       flex-direction: column;
       gap: 10px;
     }
-    /* 5個任務圓圈進度條 */
     .quest-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -65,19 +65,32 @@
       border-color: var(--accent);
       background: #332715;
     }
-    .quest-node.success {
-      background: var(--good-blue);
-      border-color: #64b5f6;
-    }
-    .quest-node.fail {
-      background: var(--evil-red);
-      border-color: #ef9a9a;
-    }
+    .quest-node.success { background: var(--good-blue); border-color: #64b5f6; }
+    .quest-node.fail { background: var(--evil-red); border-color: #ef9a9a; }
     .quest-title { font-size: 0.75rem; color: var(--subtext); }
     .quest-count { font-size: 1.25rem; font-weight: bold; }
     .quest-sub { font-size: 0.65rem; color: #ffab91; }
 
-    /* 提名連續否決次數 */
+    /* 湖中女神區域 */
+    .lady-card {
+      border-left: 4px solid var(--lake-blue);
+    }
+    .lady-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+    }
+    .lady-input {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 6px;
+      width: 70px;
+      text-align: center;
+    }
+
     .reject-tracker {
       display: flex;
       justify-content: space-between;
@@ -103,7 +116,6 @@
       box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
     }
 
-    /* 快捷語音廣播區 */
     .voice-btn-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -115,21 +127,13 @@
       color: #fff;
       padding: 12px;
       border-radius: 8px;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       cursor: pointer;
       font-weight: 500;
       text-align: center;
     }
-    .btn-voice:active {
-      background: #3a3a3a;
-    }
-
-    /* 底部操作 */
-    .btn-bar {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
+    .btn-voice:active { background: #3a3a3a; }
+    .btn-bar { display: flex; gap: 10px; margin-top: 10px; }
     .btn {
       padding: 14px;
       border-radius: 10px;
@@ -150,7 +154,7 @@
 <div class="container">
   <h2>🛡️ 白天任務進行中</h2>
 
-  <!-- 1. 任務出征進度表 -->
+  <!-- 1. 任務出征板 -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>🗺️ 任務出征板 (<span id="player-num-tag">5</span> 人局)</b>
@@ -164,7 +168,37 @@
     </div>
   </div>
 
-  <!-- 2. 連續投票否決計數器（5票否決機制） -->
+  <!-- 2. 湖中女神紀錄板（若有啟用才顯示） -->
+  <div class="card lady-card" id="lady-container" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <b style="color:var(--lake-blue);">🌊 湖中女神驗人紀錄</b>
+      <button class="btn-voice" style="padding:4px 8px; font-size:0.75rem;" onclick="speakLadyVoice()">語音宣告驗人</button>
+    </div>
+    <div style="font-size:0.8rem; color:var(--subtext); line-height:1.4;">
+      起始持有者：第 1 任隊長右側玩家。<br>
+      被查驗者僅私下告知好壞陣營，並接過女神卡成為下一任持有者。
+    </div>
+    
+    <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+      <div class="lady-step">
+        <span>R2 結束：</span>
+        <input type="text" placeholder="持卡人" class="lady-input"> 查驗 
+        <input type="text" placeholder="被查驗" class="lady-input">
+      </div>
+      <div class="lady-step">
+        <span>R3 結束：</span>
+        <input type="text" placeholder="持卡人" class="lady-input"> 查驗 
+        <input type="text" placeholder="被查驗" class="lady-input">
+      </div>
+      <div class="lady-step">
+        <span>R4 結束：</span>
+        <input type="text" placeholder="持卡人" class="lady-input"> 查驗 
+        <input type="text" placeholder="被查驗" class="lady-input">
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 連續否決計數器 -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>⚠️ 隊長組隊否決計數器</b>
@@ -183,7 +217,7 @@
     </div>
   </div>
 
-  <!-- 3. 主持人快捷廣播語音（免自己喊） -->
+  <!-- 4. 主持人廣播語音 -->
   <div class="card">
     <b>📢 主持人一鍵廣播</b>
     <div class="voice-btn-group">
@@ -196,7 +230,6 @@
     </div>
   </div>
 
-  <!-- 底部選單 -->
   <div class="btn-bar">
     <a href="play.html" class="btn btn-reset">重開新局</a>
     <a href="rules.html" class="btn btn-gray">查看規則</a>
@@ -206,9 +239,15 @@
 <script>
   const urlParams = new URLSearchParams(window.location.search);
   const players = parseInt(urlParams.get('players')) || 5;
+  const useLady = parseInt(urlParams.get('lady')) === 1;
+
   document.getElementById('player-num-tag').textContent = players;
 
-  // 5~10 人局五個任務指派人數與雙失敗規則
+  // 判斷是否顯示湖中女神區塊
+  if (useLady) {
+    document.getElementById('lady-container').style.display = 'flex';
+  }
+
   const questConfigs = {
     5:  [2, 3, 2, 3, 3],
     6:  [2, 3, 4, 3, 4],
@@ -219,10 +258,8 @@
   };
 
   const currentQuests = questConfigs[players] || questConfigs[5];
-  // 記錄五個任務的狀態：null (未開始), 'success', 'fail'
   const questStatus = [null, null, null, null, null];
 
-  // 渲染五個任務節點
   const grid = document.getElementById('quest-grid');
   currentQuests.forEach((count, i) => {
     const isDoubleFail = (players >= 7 && i === 3);
@@ -265,7 +302,6 @@
       tip.textContent = "💀 壞人已累積 3 次任務失敗！邪惡陣營獲勝！";
       tip.style.color = "#ef9a9a";
     } else {
-      // 找出第一個尚未完成的任務
       const nextIndex = questStatus.findIndex(s => s === null);
       if (nextIndex !== -1) {
         document.querySelectorAll('.quest-node').forEach((n, idx) => {
@@ -281,9 +317,7 @@
     }
   }
 
-  // 投票否決計數邏輯
   let currentReject = 0;
-
   function updateRejectUI() {
     document.querySelectorAll('.reject-dot').forEach(dot => {
       const val = parseInt(dot.getAttribute('data-val'));
@@ -316,13 +350,16 @@
     });
   });
 
-  // 語音播放
   function speakText(msg) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(msg);
     utterance.lang = 'zh-TW';
     utterance.rate = 0.9;
     window.speechSynthesis.speak(utterance);
+  }
+
+  function speakLadyVoice() {
+    speakText("任務結算完畢。請湖中女神持有者，選擇一名玩家進行陣營查驗。被查驗者請私下告知真實陣營，並接過女神標記！");
   }
 </script>
 
