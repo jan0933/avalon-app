@@ -4,77 +4,395 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>阿瓦隆主持語音助理</title>
-  <link rel="manifest" href="manifest.json">
   <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --primary: #e50914;
+      --text: #ffffff;
+      --subtext: #aaaaaa;
+      --accent: #f5a623;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-      background-color: #121212;
-      color: #ffffff;
+      background-color: var(--bg-color);
+      color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
       margin: 0;
-      box-sizing: border-box;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
     }
-    h1 { font-size: 1.5rem; margin-bottom: 20px; }
-    .role-list {
+    .container {
+      width: 100%;
+      max-width: 480px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      width: 100%;
-      max-width: 320px;
-      margin-bottom: 30px;
+      gap: 16px;
     }
-    label {
-      background: #1e1e1e;
-      padding: 14px 18px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
+    .page { display: none; flex-direction: column; gap: 16px; }
+    .page.active { display: flex; }
+    h1, h2 { text-align: center; margin: 10px 0; }
+    h1 { font-size: 1.8rem; color: var(--accent); }
+    h2 { font-size: 1.4rem; }
+    p, li { line-height: 1.6; color: #ddd; font-size: 0.95rem; }
+    .btn {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid #333;
+      padding: 16px;
       font-size: 1.1rem;
-    }
-    input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      margin-right: 12px;
-    }
-    button {
-      background: #e50914;
-      color: white;
-      border: none;
-      padding: 16px 32px;
-      font-size: 1.2rem;
-      border-radius: 30px;
+      border-radius: 12px;
+      font-weight: bold;
       cursor: pointer;
-      width: 100%;
-      max-width: 320px;
+      text-align: center;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border: none;
+    }
+    .btn-secondary {
+      background: #333333;
+      border: none;
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .player-select {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .player-btn {
+      padding: 12px;
+      background: #2a2a2a;
+      border: 2px solid transparent;
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+    .player-btn.selected {
+      border-color: var(--accent);
+      background: #382d1d;
       font-weight: bold;
     }
-    #status {
-      margin-top: 25px;
-      font-size: 1.1rem;
-      color: #ffcc00;
+    .role-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .role-item:last-child { border-bottom: none; }
+    .role-item label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.05rem;
+      flex: 1;
+    }
+    .role-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+    }
+    .role-desc { font-size: 0.8rem; color: var(--subtext); }
+    #status-card {
       text-align: center;
-      min-height: 1.5em;
+      padding: 30px 20px;
+    }
+    #status-text {
+      font-size: 1.25rem;
+      color: var(--accent);
+      min-height: 3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   </style>
 </head>
 <body>
 
-  <h1>阿瓦隆主持語音助理</h1>
+<div class="container">
 
-  <div class="role-list">
-    <label><input type="checkbox" id="merlin" checked> 梅林（Merlin）</label>
-    <label><input type="checkbox" id="percival" checked> 派西維爾（Percival）</label>
-    <label><input type="checkbox" id="morgana" checked> 莫甘娜（Morgana）</label>
-    <label><input type="checkbox" id="mordred"> 莫德雷德（Mordred）</label>
-    <label><input type="checkbox" id="oberon"> 奧伯倫（Oberon）</label>
+  <!-- 1. 首頁 -->
+  <div id="page-home" class="page active">
+    <h1>⚔️ 阿瓦隆語音助理</h1>
+    <p style="text-align:center; color: var(--subtext);">個人隨身主持小工具</p>
+    <div style="height: 30px;"></div>
+    <button class="btn btn-primary" onclick="showPage('page-setup')">開始遊戲</button>
+    <button class="btn btn-secondary" onclick="showPage('page-rules')">規則說明</button>
   </div>
 
-  <button id="start-btn">開始夜間流程</button>
-  <div id="status">準備就緒</div>
+  <!-- 2. 規則說明頁 -->
+  <div id="page-rules" class="page">
+    <h2>遊戲規則說明</h2>
+    <div class="card">
+      <h3 style="margin-top:0; color:var(--accent);">陣營勝負條件</h3>
+      <p>• <b>正義陣營（好人）</b>：成功完成 3 次任務，且梅林未被刺殺即獲勝。<br>
+         • <b>邪惡陣營（壞人）</b>：讓 3 次任務失敗，或在好人贏得 3 次任務後由刺客成功刺殺梅林即獲勝。</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0; color:var(--accent);">特殊角色能力</h3>
+      <p>• <b>梅林</b>：知道所有壞人（莫德雷德除外），但不能暴露身分。<br>
+         • <b>刺客</b>：壞人方，在好人 3 勝時可刺殺一人，若命中梅林則逆轉獲勝。<br>
+         • <b>派西維爾</b>：能看見梅林與莫甘娜兩人豎大拇指，但無法分清誰是誰。<br>
+         • <b>莫甘娜</b>：假扮梅林，混淆派西維爾的視線。<br>
+         • <b>莫德雷德</b>：邪惡首領，在天黑時梅林看不見他。<br>
+         • <b>奧伯倫</b>：孤魂野鬼，不與壞人同伴互認，壞人也不知道他。</p>
+    </div>
+    <button class="btn btn-secondary" onclick="showPage('page-home')">返回首頁</button>
+  </div>
 
-  <script src="app.js"></script>
+  <!-- 3. 遊戲設定頁 -->
+  <div id="page-setup" class="page">
+    <h2>配置遊戲</h2>
+    
+    <div class="card">
+      <div><b>選擇人數：</b> <span id="player-summary" style="color:var(--accent);">5 人（3 好 2 壞）</span></div>
+      <div class="player-select">
+        <button class="player-btn selected" onclick="setPlayers(5)">5 人</button>
+        <button class="player-btn" onclick="setPlayers(6)">6 人</button>
+        <button class="player-btn" onclick="setPlayers(7)">7 人</button>
+        <button class="player-btn" onclick="setPlayers(8)">8 人</button>
+        <button class="player-btn" onclick="setPlayers(9)">9 人</button>
+        <button class="player-btn" onclick="setPlayers(10)">10 人</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <b>特殊角色牌：</b>
+        <button style="background:none; border:none; color:var(--subtext); font-size:0.85rem; text-decoration:underline;" onclick="clearAllRoles()">全部不使用</button>
+      </div>
+
+      <div class="role-item">
+        <label>
+          <input type="checkbox" id="role-merlin" checked onchange="onMerlinChange()">
+          <div>
+            梅林 (Merlin)
+            <div class="role-desc">好人｜知曉壞人，被刺殺即敗</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="role-item">
+        <label>
+          <input type="checkbox" id="role-assassin" checked onchange="onAssassinChange()">
+          <div>
+            刺客 (Assassin)
+            <div class="role-desc">壞人｜必須與梅林同時存在</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="role-item">
+        <label>
+          <input type="checkbox" id="role-percival" checked>
+          <div>
+            派西維爾 (Percival)
+            <div class="role-desc">好人｜辨識梅林與莫甘娜</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="role-item">
+        <label>
+          <input type="checkbox" id="role-morgana" checked>
+          <div>
+            莫甘娜 (Morgana)
+            <div class="role-desc">壞人｜偽裝成梅林迷惑派西維爾</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="role-item">
+        <label>
+          <input type="checkbox" id="role-mordred">
+          <div>
+            莫德雷德 (Mordred)
+            <div class="role-desc">壞人｜梅林看不到他的身分</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="role-item">
+        <label>
+          <input type="checkbox" id="role-oberon">
+          <div>
+            奧伯倫 (Oberon)
+            <div class="role-desc">壞人｜不與壞人互認的獨行者</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startNight()">進入夜間主持</button>
+    <button class="btn btn-secondary" onclick="showPage('page-home')">返回首頁</button>
+  </div>
+
+  <!-- 4. 夜間語音主持中頁面 -->
+  <div id="page-running" class="page">
+    <h2>夜間主持中</h2>
+    <div class="card" id="status-card">
+      <div id="status-text">準備開始...</div>
+    </div>
+    <button class="btn btn-secondary" onclick="stopNight()">中止主持</button>
+  </div>
+
+</div>
+
+<script>
+  // 頁面切換控制
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+  }
+
+  // 人數配置表
+  const playerConfigs = {
+    5: "3 好 2 壞",
+    6: "4 好 2 壞",
+    7: "4 好 3 壞",
+    8: "5 好 3 壞",
+    9: "6 好 3 壞",
+    10: "6 好 4 壞"
+  };
+
+  let currentPlayerCount = 5;
+
+  function setPlayers(num) {
+    currentPlayerCount = num;
+    document.querySelectorAll('.player-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.textContent.includes(num));
+    });
+    document.getElementById('player-summary').textContent = `${num} 人（${playerConfigs[num]}）`;
+  }
+
+  // 角色防呆連動：有梅林就必須有刺客
+  function onMerlinChange() {
+    const merlin = document.getElementById('role-merlin');
+    const assassin = document.getElementById('role-assassin');
+    if (merlin.checked) {
+      assassin.checked = true;
+    }
+  }
+
+  function onAssassinChange() {
+    const merlin = document.getElementById('role-merlin');
+    const assassin = document.getElementById('role-assassin');
+    if (!assassin.checked) {
+      merlin.checked = false;
+    }
+  }
+
+  function clearAllRoles() {
+    document.querySelectorAll('.role-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+  }
+
+  // 語音播放與流程控制
+  let isCancelled = false;
+
+  function speak(text) {
+    return new Promise((resolve) => {
+      if (isCancelled) return resolve();
+      document.getElementById('status-text').textContent = text;
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.85; // 沉穩主持語速
+      utterance.onend = () => resolve();
+      utterance.onerror = () => resolve();
+      window.speechSynthesis.speak(utterance);
+    });
+  }
+
+  function wait(ms) {
+    return new Promise((resolve) => {
+      const step = 100;
+      let elapsed = 0;
+      const interval = setInterval(() => {
+        if (isCancelled || elapsed >= ms) {
+          clearInterval(interval);
+          resolve();
+        }
+        elapsed += step;
+      }, step);
+    });
+  }
+
+  async function startNight() {
+    isCancelled = false;
+    showPage('page-running');
+    window.speechSynthesis.cancel();
+
+    const hasMerlin = document.getElementById('role-merlin').checked;
+    const hasPercival = document.getElementById('role-percival').checked;
+    const hasMorgana = document.getElementById('role-morgana').checked;
+    const hasMordred = document.getElementById('role-mordred').checked;
+    const hasOberon = document.getElementById('role-oberon').checked;
+
+    // 1. 天黑閉眼
+    await speak("天黑請閉眼。請所有玩家雙手握拳，置於桌面上。");
+    await wait(3000);
+    if (isCancelled) return;
+
+    // 2. 邪惡陣營互認
+    let evilPrompt = hasOberon ? "除了奧伯倫以外的邪惡陣營玩家" : "邪惡陣營玩家";
+    await speak(`${evilPrompt}，請睜開眼睛，互相確認同伴。`);
+    await wait(5000);
+    if (isCancelled) return;
+    await speak("邪惡陣營玩家，請閉上眼睛。");
+    await wait(3000);
+    if (isCancelled) return;
+
+    // 3. 梅林看壞人
+    if (hasMerlin) {
+      let evilThumb = hasMordred ? "除了莫德雷德以外的邪惡陣營玩家" : "邪惡陣營玩家";
+      await speak(`${evilThumb}，請豎起大拇指，讓梅林辨認。`);
+      await wait(2000);
+      if (isCancelled) return;
+      await speak("梅林，請睜開眼睛。");
+      await wait(4000);
+      if (isCancelled) return;
+      await speak(`梅林請閉上眼睛，${evilThumb}請放下大拇指。`);
+      await wait(3000);
+      if (isCancelled) return;
+    }
+
+    // 4. 派西維爾看梅林與莫甘娜
+    if (hasPercival) {
+      let thumbGroup = hasMorgana ? "梅林與莫甘娜" : "梅林";
+      await speak(`${thumbGroup}，請豎起大拇指。`);
+      await wait(2000);
+      if (isCancelled) return;
+      await speak("派西維爾，請睜開眼睛。");
+      await wait(4000);
+      if (isCancelled) return;
+      await speak(`派西維爾請閉上眼睛，${thumbGroup}請放下大拇指。`);
+      await wait(3000);
+      if (isCancelled) return;
+    }
+
+    // 5. 天亮
+    await speak("天亮了，所有人請睜開眼睛！");
+    document.getElementById('status-text').textContent = "夜間結束，請開始發言！";
+  }
+
+  function stopNight() {
+    isCancelled = true;
+    window.speechSynthesis.cancel();
+    showPage('page-setup');
+  }
+</script>
+
 </body>
 </html>
