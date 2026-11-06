@@ -285,7 +285,7 @@
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>⚠️ 隊長組隊提名與否決計數</b>
-      <span style="font-size:0.8rem; color:#ff5252;">連續 5 次否決壞人勝</span>
+      <span style="font-size:0.8rem; color:#ff5252;">連續 5 次否決邪惡勝</span>
     </div>
 
     <div style="display:flex; gap:8px;">
@@ -605,12 +605,6 @@
     speakWithHighlight(btn, "任務結算完畢。請湖中女神持有者，選擇一名玩家進行陣營查驗。被查驗者請私下告知真實陣營，並接過女神標記！");
   }
 
-  // 語音文字替換：將「邪惡」改為「鞋二」
-  function sanitizeVoiceText(text) {
-    if (!text) return '';
-    return text.replaceAll('邪惡', '鞋二');
-  }
-
   function speakWithHighlight(buttonEl, msg) {
     try {
       window.speechSynthesis.cancel();
@@ -618,9 +612,7 @@
 
       if (buttonEl) buttonEl.classList.add('speaking');
 
-      const spokenText = sanitizeVoiceText(msg);
-
-      const utterance = new SpeechSynthesisUtterance(spokenText);
+      const utterance = new SpeechSynthesisUtterance(msg);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.9;
 
@@ -641,9 +633,7 @@
   function speakRaw(msg) {
     try {
       window.speechSynthesis.cancel();
-      const spokenText = sanitizeVoiceText(msg);
-
-      const utterance = new SpeechSynthesisUtterance(spokenText);
+      const utterance = new SpeechSynthesisUtterance(msg);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
