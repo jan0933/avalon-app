@@ -217,8 +217,8 @@
     return new Promise((resolve) => {
       if (isCancelled) return resolve();
 
-      // 將「邪惡」的發音替換為「鞋餓」
-      const spokenText = text.replaceAll('邪惡', '鞋餓');
+      // 將「邪惡」的發音替換為「邪、惡」
+      const spokenText = text.replaceAll('邪惡', '邪、惡');
 
       const utterance = new SpeechSynthesisUtterance(spokenText);
       utterance.lang = 'zh-TW';
@@ -291,3 +291,19 @@
   }
 
   document.getElementById('btn-action').addEventListener('click', () => {
+    if (isDone) {
+      window.location.href = `game.html?players=${players}&level=${currentLevel}&lady=${useLady}`;
+    } else if (isRunning) {
+      skipNightProcess();
+    } else {
+      runNightProcess();
+    }
+  });
+
+  window.addEventListener('beforeunload', () => {
+    window.speechSynthesis.cancel();
+  });
+</script>
+
+</body>
+</html>
