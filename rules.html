@@ -12,6 +12,7 @@
       --subtext: #aaaaaa;
       --accent: #f5a623;
       --table-border: #333333;
+      --lake-blue: #0288d1;
     }
     * { box-sizing: border-box; }
     body {
@@ -40,6 +41,9 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+    .lake-card {
+      border-left: 4px solid var(--lake-blue);
     }
     .btn {
       display: block;
@@ -73,6 +77,7 @@
 <div class="container">
   <h2>遊戲規則說明</h2>
 
+  <!-- 1. 抽牌與隊長機制 -->
   <div class="card">
     <h3 style="margin-top:0; color:var(--accent);">🃏 抽牌發牌與隊長選擇</h3>
     <p><b>1. 角色牌準備與抽取：</b><br>
@@ -85,6 +90,7 @@
        • <b>五票否決機制</b>：同一輪任務若連續 5 次組隊表決失敗，邪惡陣營直接獲勝。</p>
   </div>
 
+  <!-- 2. 任務人數表 -->
   <div class="card">
     <h3 style="margin-top:0; color:var(--accent);">🗺️ 5~10 人局任務人數表</h3>
     <table class="quest-table">
@@ -105,6 +111,22 @@
     </p>
   </div>
 
+  <!-- 3. 湖中女神使用規範 -->
+  <div class="card lake-card">
+    <h3 style="margin-top:0; color:var(--lake-blue);">🌊 湖中女神 (Lady of the Lake) 完整規範</h3>
+    <p><b>1. 適用人數與初始持有：</b><br>
+       • 官方建議 <b>7 人（含）以上</b> 的對局才加入此擴充。<br>
+       • 開局時將女神卡交給<b>第一任隊長右側（順時針最後一位發言）</b>的玩家。</p>
+    <p><b>2. 發動時機與次數：</b><br>
+       • 僅在 <b>第 2、3、4 任務結束後</b> 各發動一次（整場遊戲固定使用 3 次）。</p>
+    <p><b>3. 檢驗流程與限制：</b><br>
+       • <b>查驗身分</b>：持卡者指定一名<b>尚未被查驗過</b>的玩家，被查驗者必須私下將自己的「陣營牌（正義/邪惡）」展示給持卡者看。<br>
+       • <b>誠實原則</b>：展示的陣營牌<b>必須完全真實</b>（即使是莫德雷德，展示時依然屬於邪惡陣營）。<br>
+       • <b>發言權利</b>：持卡者看完後，可以向全場公開聲明對方的陣營，但<b>可以說實話也可以說謊</b>（壞人拿到會說謊誣陷，好人拿到會說真話）。<br>
+       • <b>傳遞規則</b>：被查驗的玩家接過女神卡成為下一任持有者，等待下一個任務結算後發動；<b>已持過女神卡的人不能再被檢驗</b>。</p>
+  </div>
+
+  <!-- 4. 勝負條件與角色能力 -->
   <div class="card">
     <h3 style="margin-top:0; color:var(--accent);">🏆 勝負條件與角色能力</h3>
     <p>• <b>好人勝</b>：成功完成 3 次任務，且梅林未被刺殺。<br>
