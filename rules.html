@@ -3,24 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>規則說明 - 阿瓦隆語音助理</title>
+  <title>詳細規則說明 - 阿瓦隆語音助理</title>
   <style>
     :root {
       --bg-color: #121212;
       --card-bg: #1e1e1e;
+      --primary: #e50914;
       --text: #ffffff;
       --subtext: #aaaaaa;
       --accent: #f5a623;
-      --table-border: #333333;
+      --good-blue: #1976d2;
+      --evil-red: #d32f2f;
       --lake-blue: #0288d1;
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       background-color: var(--bg-color);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       justify-content: center;
       min-height: 100vh;
@@ -30,113 +32,174 @@
       max-width: 480px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
+      padding-bottom: 24px;
     }
-    h2 { text-align: center; margin: 10px 0; font-size: 1.4rem; }
-    p { line-height: 1.6; color: #ddd; font-size: 0.95rem; }
-    .card {
+    h2 { text-align: center; margin: 4px 0 10px; font-size: 1.4rem; color: var(--accent); }
+    .rule-card {
       background: var(--card-bg);
-      padding: 16px;
       border-radius: 12px;
+      padding: 16px;
+      border-left: 4px solid var(--accent);
       display: flex;
       flex-direction: column;
       gap: 10px;
+      line-height: 1.55;
     }
-    .lake-card {
-      border-left: 4px solid var(--lake-blue);
-    }
-    .btn {
-      display: block;
-      background: #2a2a2a;
-      color: var(--text);
-      text-decoration: none;
-      padding: 16px;
-      font-size: 1.1rem;
-      border-radius: 12px;
+    .rule-card.blue { border-left-color: var(--good-blue); }
+    .rule-card.red { border-left-color: var(--evil-red); }
+    .rule-card.lake { border-left-color: var(--lake-blue); }
+    .rule-title {
+      font-size: 1.15rem;
       font-weight: bold;
-      text-align: center;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .quest-table {
+    .rule-content {
+      font-size: 0.95rem;
+      color: #ddd;
+    }
+    .highlight-box {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+    .table-custom {
       width: 100%;
       border-collapse: collapse;
+      font-size: 0.85rem;
       text-align: center;
-      margin-top: 8px;
-      font-size: 0.88rem;
+      margin-top: 6px;
     }
-    .quest-table th, .quest-table td {
-      border: 1px solid var(--table-border);
-      padding: 8px 4px;
+    .table-custom th, .table-custom td {
+      border: 1px solid #444;
+      padding: 6px 4px;
     }
-    .quest-table th { background-color: #2a2a2a; color: var(--accent); }
-    .quest-table td { background-color: #1a1a1a; }
-    .special-star { color: #ff5252; font-weight: bold; }
+    .table-custom th {
+      background: #282828;
+      color: var(--accent);
+    }
+    .btn-back {
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      border: 1px solid #4f4f4f;
+      text-align: center;
+      text-decoration: none;
+      background: #333333;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .btn-back:active { transform: scale(0.98); }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>遊戲規則說明</h2>
+  <h2>📖 阿瓦隆詳細遊戲規則指南</h2>
 
-  <!-- 1. 抽牌與隊長機制 -->
-  <div class="card">
-    <h3 style="margin-top:0; color:var(--accent);">🃏 抽牌發牌與隊長選擇</h3>
-    <p><b>1. 角色牌準備與抽取：</b><br>
-       • 根據遊玩人數取出對應數量的正義與邪惡陣營牌。<br>
-       • 將挑選好的特殊角色牌加入，不足人數由「普通好人」與「普通壞人」補齊。<br>
-       • 洗勻後每人私下抽取一張確認身分並蓋牌放置。</p>
-    <p><b>2. 隊長標記（皇冠牌）決定：</b><br>
-       • <b>首任隊長</b>：第一局隨機指定一人。<br>
-       • <b>隊長傳遞</b>：每輪組隊提名表決結束後，隊長標記順時針交給下一位。<br>
-       • <b>五票否決機制</b>：同一輪任務若連續 5 次組隊表決失敗，邪惡陣營直接獲勝。</p>
+  <!-- 1. 遊戲核心目標 -->
+  <div class="rule-card">
+    <div class="rule-title">🎯 陣營勝利條件</div>
+    <div class="rule-content">
+      遊戲共進行最多 5 回合任務，採五戰三勝制：
+      <ul>
+        <li><b style="color:#64b5f6;">正義陣營（好人）</b>：累計獲得 <b>3 次任務成功</b>，且後續未被刺客刺殺梅林成功，即可直接獲勝。</li>
+        <li><b style="color:#ef9a9a;">邪惡陣營（壞人）</b>：累計獲得 <b>3 次任務失敗</b>，或讓<b>連續 5 次組隊表決皆被否決</b>，壞人即刻直接獲勝。</li>
+      </ul>
+    </div>
   </div>
 
-  <!-- 2. 任務人數表 -->
-  <div class="card">
-    <h3 style="margin-top:0; color:var(--accent);">🗺️ 5~10 人局任務人數表</h3>
-    <table class="quest-table">
-      <thead>
-        <tr><th>人數</th><th>陣營</th><th>任務1</th><th>任務2</th><th>任務3</th><th>任務4</th><th>任務5</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>5 人</td><td>3好2壞</td><td>2</td><td>3</td><td>2</td><td>3</td><td>3</td></tr>
-        <tr><td>6 人</td><td>4好2壞</td><td>2</td><td>3</td><td>4</td><td>3</td><td>4</td></tr>
-        <tr><td>7 人</td><td>4好3壞</td><td>2</td><td>3</td><td>3</td><td>4<span class="special-star">*</span></td><td>4</td></tr>
-        <tr><td>8 人</td><td>5好3壞</td><td>3</td><td>4</td><td>4</td><td>5<span class="special-star">*</span></td><td>5</td></tr>
-        <tr><td>9 人</td><td>6好3壞</td><td>3</td><td>4</td><td>4</td><td>5<span class="special-star">*</span></td><td>5</td></tr>
-        <tr><td>10 人</td><td>6好4壞</td><td>3</td><td>4</td><td>4</td><td>5<span class="special-star">*</span></td><td>5</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:0.8rem; color:#ff8a80; margin-top:6px; margin-bottom:0;">
-      <span class="special-star">* 雙失敗規則</span>：7 人以上局的<b>第 4 次任務需出現 2 張以上失敗牌</b>才算失敗。
-    </p>
+  <!-- 2. 表決通過詳細判定 -->
+  <div class="rule-card red">
+    <div class="rule-title">🗳️ 隊長組隊與表決通過標準</div>
+    <div class="rule-content">
+      每回合由當前隊長提名該回合指定數量的玩家出征，全員討論後進行表決：
+      <div class="highlight-box">
+        <b>⭐ 通過門檻：贊成票必須「嚴格過半數」！</b>
+        <ul>
+          <li><b>贊成票 > 反對票</b> ➜ <b>組隊通過</b>，被提名的隊員準備出征。</li>
+          <li><b>平手（贊成票 = 反對票）</b> ➜ <b>判定為否決失敗</b>！</li>
+          <li><b>反對票 > 贊成票</b> ➜ <b>判定為否決失敗</b>！</li>
+        </ul>
+      </div>
+
+      <b>各人數局的表決通過對照表：</b>
+      <table class="table-custom">
+        <tr><th>總人數</th><th>過半所需最低贊成票</th><th>平手票數 (判定否決)</th></tr>
+        <tr><td>5 人</td><td><b>3 票</b></td><td>無（奇數）</td></tr>
+        <tr><td>6 人</td><td><b>4 票</b></td><td>3 贊成 vs 3 反對</td></tr>
+        <tr><td>7 人</td><td><b>4 票</b></td><td>無（奇數）</td></tr>
+        <tr><td>8 人</td><td><b>5 票</b></td><td>4 贊成 vs 4 反對</td></tr>
+        <tr><td>9 人</td><td><b>5 票</b></td><td>無（奇數）</td></tr>
+        <tr><td>10 人</td><td><b>6 票</b></td><td>5 贊成 vs 5 反對</td></tr>
+      </table>
+
+      <div style="margin-top: 8px;">
+        ⚠️ <b>連續 5 次否決即輸機制</b>：<br>
+        若某次組隊被否決，否決指示物 +1，隊長標記順時鐘移交給左手邊下一位玩家重新組隊。若在同一個任務回合中<b>連續累計被否決達 5 次</b>，邪惡陣營直接獲得全場最終勝利！
+      </div>
+    </div>
   </div>
 
-  <!-- 3. 湖中女神使用規範 -->
-  <div class="card lake-card">
-    <h3 style="margin-top:0; color:var(--lake-blue);">🌊 湖中女神 (Lady of the Lake) 完整規範</h3>
-    <p><b>1. 適用人數與初始持有：</b><br>
-       • 官方建議 <b>7 人（含）以上</b> 的對局才加入此擴充。<br>
-       • 開局時將女神卡交給<b>第一任隊長右側（順時針最後一位發言）</b>的玩家。</p>
-    <p><b>2. 發動時機與次數：</b><br>
-       • 僅在 <b>第 2、3、4 任務結束後</b> 各發動一次（整場遊戲固定使用 3 次）。</p>
-    <p><b>3. 檢驗流程與限制：</b><br>
-       • <b>查驗身分</b>：持卡者指定一名<b>尚未被查驗過</b>的玩家，被查驗者必須私下將自己的「陣營牌（正義/邪惡）」展示給持卡者看。<br>
-       • <b>誠實原則</b>：展示的陣營牌<b>必須完全真實</b>（即使是莫德雷德，展示時依然屬於邪惡陣營）。<br>
-       • <b>發言權利</b>：持卡者看完後，可以向全場公開聲明對方的陣營，但<b>可以說實話也可以說謊</b>（壞人拿到會說謊誣陷，好人拿到會說真話）。<br>
-       • <b>傳遞規則</b>：被查驗的玩家接過女神卡成為下一任持有者，等待下一個任務結算後發動；<b>已持過女神卡的人不能再被檢驗</b>。</p>
+  <!-- 3. 執行任務與出牌判定 -->
+  <div class="rule-card blue">
+    <div class="rule-title">⚔️ 執行出征與成功/失敗判定</div>
+    <div class="rule-content">
+      表決通過後，只有被隊長選中的出征隊員各拿兩張任務卡（一張成功、一張失敗）：
+      <ul>
+        <li><b>好人隊員</b>：受亞瑟王誓言約束，<b>只能出「成功卡」</b>。</li>
+        <li><b>壞人隊員</b>：可以自由選擇出<b>「成功卡」</b>（隱藏身分）或<b>「失敗卡」</b>（破壞任務）。</li>
+      </ul>
+
+      <div class="highlight-box">
+        <b>判定標準：</b>
+        <ul>
+          <li><b>一般回合（1~6 人所有回合，7~10 人的第 1, 2, 3, 5 回合）</b>：只要開出 <b>1 張（或以上）失敗卡</b>，該回合任務即判定為<b>失敗</b>；必須<b>全數為成功卡</b>才算<b>成功</b>。</li>
+          <li><b>⚠️ 7 人以上局的「第 4 回合」特殊規則</b>：必須出現 <b>2 張（或以上）失敗卡</b>，任務才會失敗；若僅出現 1 張失敗卡，該回合依然判定為<b>成功</b>！</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
-  <!-- 4. 勝負條件與角色能力 -->
-  <div class="card">
-    <h3 style="margin-top:0; color:var(--accent);">🏆 勝負條件與角色能力</h3>
-    <p>• <b>好人勝</b>：成功完成 3 次任務，且梅林未被刺殺。<br>
-       • <b>壞人勝</b>：累積 3 次任務失敗；或刺客命中梅林；或連續 5 次組隊失敗。<br>
-       • <b>梅林</b>：知曉壞人，防刺殺；<b>刺客</b>：好人 3 勝時刺殺梅林。<br>
-       • <b>派西維爾</b>：見梅林與莫甘娜舉手；<b>莫甘娜</b>：假冒梅林迷惑派西維爾。<br>
-       • <b>莫德雷德</b>：梅林看不到他；<b>奧伯倫</b>：不與壞人互認。</p>
+  <!-- 4. 刺殺梅林階段 -->
+  <div class="rule-card">
+    <div class="rule-title">🗡️ 刺客刺殺梅林階段</div>
+    <div class="rule-content">
+      若正義陣營成功拿下 3 次任務勝利，遊戲並未直接結束（若有加入梅林）：
+      <ol>
+        <li>壞人全員現身，但由<b>刺客</b>擁有最終刺殺決定權。</li>
+        <li>壞人可以公開交流推理，最後刺客指定一名好人為梅林。</li>
+        <li><b>刺殺成功（點中梅林）</b>：邪惡陣營逆轉獲勝！</li>
+        <li><b>刺殺失敗（點錯人）</b>：正義陣營獲得最終勝利！</li>
+      </ol>
+    </div>
   </div>
 
-  <a href="index.html" class="btn">返回首頁</a>
+  <!-- 5. 湖中女神規則 -->
+  <div class="rule-card lake">
+    <div class="rule-title">🌊 湖中女神專屬規則（選用）</div>
+    <div class="rule-content">
+      <ul>
+        <li><b>起始持有人</b>：遊戲開始時交由第 1 任隊長右手邊的玩家持有。</li>
+        <li><b>發動時機</b>：在<b>第 2、第 3、第 4 回合</b>任務結算完畢後立即發動。</li>
+        <li><b>查驗方式</b>：持有人選擇一名尚未被查驗過的玩家，該玩家必須<b>私下</b>將自己的真實陣營卡給持有人看（僅出示好人或壞人，不透露角色）。</li>
+        <li><b>傳遞</b>：被查驗過的玩家成為下一任湖中女神持有人，並在下一回合結束時查驗他人。</li>
+        <li>持有人可以自由向大家宣稱查驗結果，但內容真假全由持有人自己決定。</li>
+      </ul>
+    </div>
+  </div>
+
+  <a href="javascript:history.back()" class="btn-back">⬅️ 返回上一頁</a>
 </div>
 
 </body>
