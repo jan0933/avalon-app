@@ -87,17 +87,37 @@
       animation: popBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
+    /* 語音按鈕基礎樣式 */
+    .btn-voice-action {
+      background: #282828;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 11px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-voice-action:active {
+      background: #383838;
+      transform: scale(0.98);
+    }
+
     /* 任務板成功/失敗按鈕 */
     .quest-resolve-btns {
       display: flex;
       gap: 10px;
-      margin-top: 6px;
     }
     .btn-resolve {
       flex: 1;
-      padding: 14px 8px;
+      padding: 13px 8px;
       border-radius: 10px;
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: bold;
       border: none;
       cursor: pointer;
@@ -116,24 +136,6 @@
       opacity: 0.35;
       cursor: not-allowed;
       transform: none;
-    }
-
-    /* 湖中女神區域 */
-    .lake-card { border-left: 4px solid var(--lake-blue); }
-    .lady-step {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.88rem;
-    }
-    .lady-input {
-      background: #2a2a2a;
-      border: 1px solid #444;
-      color: #fff;
-      padding: 6px 8px;
-      border-radius: 6px;
-      width: 75px;
-      text-align: center;
     }
 
     /* 連續否決計數器 */
@@ -164,29 +166,23 @@
       transform: scale(1.08);
     }
 
-    /* 一鍵廣播清單 */
-    .broadcast-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .btn-broadcast {
-      background: #262626;
-      border: 1px solid #444;
-      color: #fff;
-      padding: 14px 16px;
-      border-radius: 10px;
-      font-size: 0.98rem;
-      cursor: pointer;
-      font-weight: bold;
-      text-align: left;
+    /* 湖中女神區域 */
+    .lake-card { border-left: 4px solid var(--lake-blue); }
+    .lady-step {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      transition: background 0.15s;
+      gap: 8px;
+      font-size: 0.88rem;
     }
-    .btn-broadcast:active { background: #383838; }
-    .broadcast-arrow { color: var(--accent); font-size: 0.85rem; }
+    .lady-input {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 6px;
+      width: 75px;
+      text-align: center;
+    }
 
     /* 底部操作列 */
     .btn-bar { display: flex; gap: 10px; margin-top: 8px; }
@@ -204,21 +200,14 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-      transition: transform 0.1s, background 0.2s;
+      transition: transform 0.1s;
     }
     .btn:active { transform: scale(0.98); }
-    
-    /* 重開新局：鮮明清晰、絕不反白 */
     .btn-restart {
       background: #c62828 !important;
       color: #ffffff !important;
       border: 1px solid #e53935 !important;
     }
-    .btn-restart:hover {
-      background: #b71c1c !important;
-    }
-
-    /* 查看規則：標準穩重深灰色 */
     .btn-rules {
       background: #333333 !important;
       color: #ffffff !important;
@@ -231,7 +220,7 @@
 <div class="container">
   <h2>🛡️ 白天任務進行中</h2>
 
-  <!-- 1. 任務出征板 -->
+  <!-- 1. 任務出征板（含任務進度、出牌語音、成功/失敗結算） -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b>🗺️ 任務出征板 (<span id="player-num-tag">5</span> 人局)</b>
@@ -245,18 +234,54 @@
       當前進行：第 1 任務，需派 2 人出征
     </div>
 
+    <!-- 整合：隊員閉眼提交任務卡語音按鈕 -->
+    <button class="btn-voice-action" onclick="speakText('組隊通過！任務隊員請閉上雙眼，私下提交任務卡！')">
+      🤫 隊員閉眼提交任務卡
+    </button>
+
     <!-- 任務成功 / 失敗 按鈕 -->
     <div class="quest-resolve-btns">
       <button id="btn-quest-good" class="btn-resolve btn-resolve-good">
-        🏆 當前任務成功 (好人勝)
+        🏆 當前任務成功
       </button>
       <button id="btn-quest-evil" class="btn-resolve btn-resolve-evil">
-        💀 當前任務失敗 (壞人勝)
+        💀 當前任務失敗
       </button>
     </div>
   </div>
 
-  <!-- 2. 湖中女神紀錄板 -->
+  <!-- 2. 隊長組隊否決計數器（含隊長提名與表決倒數語音） -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <b>⚠️ 隊長組隊提名與否決計數</b>
+      <span style="font-size:0.8rem; color:#ff5252;">連續 5 次否決壞人勝</span>
+    </div>
+
+    <!-- 整合：隊長組織提名與全體投票語音 -->
+    <div style="display:flex; gap:8px;">
+      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakText('請當前隊長開始發言，並提名出征隊員！')">
+        🗣️ 請隊長提名隊伍
+      </button>
+      <button class="btn-voice-action" style="flex:1; font-size:0.88rem;" onclick="speakText('全體玩家請準備，3、2、1，請投票！')">
+        🗳️ 表決倒數 321
+      </button>
+    </div>
+
+    <div class="reject-tracker">
+      <div class="reject-dot" data-val="1">1</div>
+      <div class="reject-dot" data-val="2">2</div>
+      <div class="reject-dot" data-val="3">3</div>
+      <div class="reject-dot" data-val="4">4</div>
+      <div class="reject-dot" data-val="5" style="border-color:#ff5252; color:#ff5252;">5</div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:2px;">
+      <button id="btn-reject-add" style="flex:1; background:#2a2a2a; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">組隊被否決 (+1)</button>
+      <button id="btn-reject-reset" style="flex:1; background:#2a2a2a; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">組隊通過 (歸零)</button>
+    </div>
+  </div>
+
+  <!-- 3. 湖中女神紀錄板（若有啟用才顯示） -->
   <div class="card lake-card" id="lady-container" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <b style="color:var(--lake-blue);">🌊 湖中女神驗人紀錄</b>
@@ -286,52 +311,7 @@
     </div>
   </div>
 
-  <!-- 3. 連續否決計數器 -->
-  <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <b>⚠️ 隊長組隊否決計數器</b>
-      <span style="font-size:0.8rem; color:#ff5252;">連續 5 次否決壞人勝</span>
-    </div>
-    <div class="reject-tracker">
-      <div class="reject-dot" data-val="1">1</div>
-      <div class="reject-dot" data-val="2">2</div>
-      <div class="reject-dot" data-val="3">3</div>
-      <div class="reject-dot" data-val="4">4</div>
-      <div class="reject-dot" data-val="5" style="border-color:#ff5252; color:#ff5252;">5</div>
-    </div>
-    <div style="display:flex; gap:10px; margin-top:4px;">
-      <button id="btn-reject-add" style="flex:1; background:#2a2a2a; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">組隊被否決 (+1)</button>
-      <button id="btn-reject-reset" style="flex:1; background:#2a2a2a; border:1px solid #444; color:#fff; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">組隊通過 (歸零)</button>
-    </div>
-  </div>
-
-  <!-- 4. 主持人一鍵廣播 -->
-  <div class="card">
-    <b>📢 主持人一鍵廣播</b>
-    <div class="broadcast-list">
-      <button class="btn-broadcast" data-msg="請當前隊長開始發言，並提名出征隊員！">
-        <span>1. 🗣️ 請隊長組織提名隊伍</span>
-        <span class="broadcast-arrow">廣播 ➜</span>
-      </button>
-
-      <button class="btn-broadcast" data-msg="全體玩家請準備，3、2、1，請投票！">
-        <span>2. 🗳️ 全體投票倒數 3、2、1</span>
-        <span class="broadcast-arrow">廣播 ➜</span>
-      </button>
-
-      <button class="btn-broadcast" data-msg="組隊通過！任務隊員請閉上雙眼，私下提交任務卡！">
-        <span>3. 🤫 隊員閉眼提交任務卡</span>
-        <span class="broadcast-arrow">廣播 ➜</span>
-      </button>
-
-      <button class="btn-broadcast" data-msg="好人陣營已獲得三場勝利！請刺客現身，進行刺殺梅林環節！">
-        <span>4. 🗡️ 進入刺客刺殺梅林環節</span>
-        <span class="broadcast-arrow">廣播 ➜</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- 底部列：重開新局維持高對比可點狀態 -->
+  <!-- 底部列：重開新局與查看規則 -->
   <div class="btn-bar">
     <a href="play.html" class="btn btn-restart">🔄 重開新局</a>
     <a href="rules.html" class="btn btn-rules">📖 查看規則</a>
@@ -518,14 +498,7 @@
     });
   });
 
-  // 廣播按鈕監聽
-  document.querySelectorAll('.btn-broadcast').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const msg = btn.getAttribute('data-msg');
-      if (msg) speakText(msg);
-    });
-  });
-
+  // 湖中女神語音
   const btnLady = document.getElementById('btn-lady-voice');
   if (btnLady) {
     btnLady.addEventListener('click', () => {
