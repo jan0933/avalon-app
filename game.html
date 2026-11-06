@@ -458,7 +458,6 @@
     document.getElementById('result-modal').classList.remove('active');
   });
 
-  // 任務結算：語音改為「第 X 回合任務...」
   function resolveCurrentQuest(result) {
     const curIdx = getCurrentQuestIndex();
     if (curIdx === -1) {
@@ -606,7 +605,12 @@
     speakWithHighlight(btn, "任務結算完畢。請湖中女神持有者，選擇一名玩家進行陣營查驗。被查驗者請私下告知真實陣營，並接過女神標記！");
   }
 
-  // 語音播放與外框變色發光連動（自動將「邪惡」替換為「邪厄」發音）
+  // 核心發音轉換：將「邪惡」全面替換為「鞋餓」
+  function sanitizeVoiceText(text) {
+    if (!text) return '';
+    return text.replaceAll('邪惡', '鞋餓');
+  }
+
   function speakWithHighlight(buttonEl, msg) {
     try {
       window.speechSynthesis.cancel();
@@ -614,7 +618,7 @@
 
       if (buttonEl) buttonEl.classList.add('speaking');
 
-      const spokenText = msg.replaceAll('邪惡', '邪厄');
+      const spokenText = sanitizeVoiceText(msg);
 
       const utterance = new SpeechSynthesisUtterance(spokenText);
       utterance.lang = 'zh-TW';
@@ -634,11 +638,10 @@
     }
   }
 
-  // 獨立廣播工具（自動將「邪惡」替換為「邪厄」發音）
   function speakRaw(msg) {
     try {
       window.speechSynthesis.cancel();
-      const spokenText = msg.replaceAll('邪惡', '邪厄');
+      const spokenText = sanitizeVoiceText(msg);
 
       const utterance = new SpeechSynthesisUtterance(spokenText);
       utterance.lang = 'zh-TW';
