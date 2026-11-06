@@ -216,7 +216,11 @@
   function speak(text) {
     return new Promise((resolve) => {
       if (isCancelled) return resolve();
-      const utterance = new SpeechSynthesisUtterance(text);
+
+      // 自動將發音中的「邪惡」轉換為「邪厄」
+      const spokenText = text.replaceAll('邪惡', '邪厄');
+
+      const utterance = new SpeechSynthesisUtterance(spokenText);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.88;
       utterance.onend = () => resolve();
@@ -270,7 +274,6 @@
     }
   }
 
-  // 跳過夜間：停止語音並立刻解鎖進入白天
   function skipNightProcess() {
     isCancelled = true;
     isRunning = false;
@@ -278,7 +281,6 @@
     finishNightUI();
   }
 
-  // 完成夜間的介面狀態
   function finishNightUI() {
     document.querySelectorAll('.script-card').forEach(c => c.className = 'script-card done');
     isRunning = false;
@@ -288,16 +290,12 @@
     actionBtn.className = "btn btn-next";
   }
 
-  // 按鈕點擊行為
   document.getElementById('btn-action').addEventListener('click', () => {
     if (isDone) {
-      // 進入白天戰情室
       window.location.href = `game.html?players=${players}&level=${currentLevel}&lady=${useLady}`;
     } else if (isRunning) {
-      // 正在朗讀時點擊：直接跳過夜間
       skipNightProcess();
     } else {
-      // 尚未開始時點擊：開始朗讀
       runNightProcess();
     }
   });
