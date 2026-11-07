@@ -62,6 +62,28 @@
       font-size: 0.95rem;
       color: #ddd;
     }
+    .char-block {
+      background: #252525;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border-left: 3px solid #555;
+    }
+    .char-block.good { border-left-color: #42a5f5; }
+    .char-block.evil { border-left-color: #ef5350; }
+    .char-name {
+      font-weight: bold;
+      font-size: 1rem;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .char-desc {
+      font-size: 0.88rem;
+      color: #ccc;
+      line-height: 1.5;
+    }
     .highlight-box {
       background: #2a2a2a;
       border: 1px solid #444;
@@ -108,7 +130,7 @@
 <div class="container">
   <h2>📖 阿瓦隆詳細遊戲規則指南</h2>
 
-  <!-- 0. 故事背景（已移除重複說明） -->
+  <!-- 0. 故事背景 -->
   <div class="rule-card story">
     <div class="rule-title">📜 傳奇故事背景</div>
     <div class="rule-content">
@@ -117,7 +139,84 @@
     </div>
   </div>
 
-  <!-- 1. 陣營勝利條件 -->
+  <!-- 1. 全角色功能詳細說明 -->
+  <div class="rule-card">
+    <div class="rule-title">🎭 角色牌特殊能力說明</div>
+    <div class="rule-content">
+      
+      <b style="color:#64b5f6; font-size:1.05rem;">🔵 正義陣營（好人）</b>
+      
+      <div class="char-block good">
+        <div class="char-name" style="color:#64b5f6;">🧙‍♂️ 梅林 (Merlin)</div>
+        <div class="char-desc">
+          <b>能力：</b>夜間知曉所有邪惡陣營玩家是誰（但看不到莫德雷德）。<br>
+          <b>限制：</b>白天必須暗中引導好人組隊，但不能太明顯，否則好人贏得 3 次任務後會被刺客指認刺殺而反勝為敗。
+        </div>
+      </div>
+
+      <div class="char-block good">
+        <div class="char-name" style="color:#64b5f6;">🛡️ 派西維爾 (Percival)</div>
+        <div class="char-desc">
+          <b>能力：</b>夜間能看到兩個人豎起大拇指（梅林與莫甘娜），但分不清誰真誰假。<br>
+          <b>任務：</b>透過白天兩人的發言與投票分辨出真正的梅林，並假裝自己是梅林替其擋刀，混淆刺客視線。
+        </div>
+      </div>
+
+      <div class="char-block good">
+        <div class="char-name" style="color:#64b5f6;">⚔️ 亞瑟的忠臣 (Loyal Servant)</div>
+        <div class="char-desc">
+          <b>能力：</b>無特殊夜間視野（閉眼天黑）。<br>
+          <b>任務：</b>憑藉白天的組隊提案、表決票型與任務出牌結果進行邏輯推理，找出同伴並堅定支持正義。
+        </div>
+      </div>
+
+      <div style="margin-top: 10px;"></div>
+      <b style="color:#ef9a9a; font-size:1.05rem;">🔴 邪惡陣營（壞人）</b>
+
+      <div class="char-block evil">
+        <div class="char-name" style="color:#ef9a9a;">🗡️ 刺客 (Assassin)</div>
+        <div class="char-desc">
+          <b>能力：</b>夜間與其他邪惡同伴互認。<br>
+          <b>絕招：</b>若正義陣營拿下 3 次任務勝利，刺客擁有「最後一擊」特權，指認一名玩家為梅林；刺中則邪惡陣營逆轉獲勝。
+        </div>
+      </div>
+
+      <div class="char-block evil">
+        <div class="char-name" style="color:#ef9a9a;">🔮 莫甘娜 (Morgana)</div>
+        <div class="char-desc">
+          <b>能力：</b>邪惡女巫。夜間在派西維爾眼裡會與梅林同時豎起大拇指，偽裝成先知。<br>
+          <b>任務：</b>在白天偽裝成梅林取得派西維爾的信任，騙取隊長組隊資格以破壞任務。
+        </div>
+      </div>
+
+      <div class="char-block evil">
+        <div class="char-name" style="color:#ef9a9a;">👤 莫德雷德 (Mordred)</div>
+        <div class="char-desc">
+          <b>能力：</b>邪惡叛軍首領。在夜間梅林辨認邪惡陣營時，莫德雷德<b>不用豎起大拇指</b>。<br>
+          <b>特點：</b>梅林完全不知道他是壞人，是邪惡陣營埋伏最深的秘密王牌。
+        </div>
+      </div>
+
+      <div class="char-block evil">
+        <div class="char-name" style="color:#ef9a9a;">👻 奧伯倫 (Oberon)</div>
+        <div class="char-desc">
+          <b>能力：</b>孤魂獨狼。屬於邪惡陣營，但<b>夜間不與其他壞人相認</b>，其他壞人也不知道他是同伴。<br>
+          <b>特點：</b>梅林能看見奧伯倫是壞人。奧伯倫必須在場上自行觀察、暗中掩護壞人出失敗牌。
+        </div>
+      </div>
+
+      <div class="char-block evil">
+        <div class="char-name" style="color:#ef9a9a;">🦹 莫德雷德的爪牙 (Minion)</div>
+        <div class="char-desc">
+          <b>能力：</b>基本壞人。夜間與其他邪惡同伴睜眼互認。<br>
+          <b>任務：</b>聽從指揮，在表決中製造混亂，或混入隊伍投下破壞性的任務失敗卡。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. 陣營勝利條件 -->
   <div class="rule-card">
     <div class="rule-title">🎯 陣營勝利條件</div>
     <div class="rule-content">
@@ -129,7 +228,7 @@
     </div>
   </div>
 
-  <!-- 2. 表決通過詳細判定 -->
+  <!-- 3. 表決通過詳細判定 -->
   <div class="rule-card red">
     <div class="rule-title">🗳️ 隊長組隊與表決通過標準</div>
     <div class="rule-content">
@@ -161,7 +260,7 @@
     </div>
   </div>
 
-  <!-- 3. 執行任務與出牌判定 -->
+  <!-- 4. 執行任務與出牌判定 -->
   <div class="rule-card blue">
     <div class="rule-title">⚔️ 執行出征與成功/失敗判定</div>
     <div class="rule-content">
@@ -181,7 +280,7 @@
     </div>
   </div>
 
-  <!-- 4. 刺殺梅林階段 -->
+  <!-- 5. 刺殺梅林階段 -->
   <div class="rule-card">
     <div class="rule-title">🗡️ 刺客刺殺梅林階段</div>
     <div class="rule-content">
@@ -195,7 +294,7 @@
     </div>
   </div>
 
-  <!-- 5. 湖中女神規則 -->
+  <!-- 6. 湖中女神規則 -->
   <div class="rule-card lake">
     <div class="rule-title">🌊 湖中女神專屬規則（選用）</div>
     <div class="rule-content">
